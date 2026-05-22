@@ -1,83 +1,87 @@
 #!/bin/bash
-# // config Data
-echo -e "${GREEN}Config Data${NC}"
+# ================================================================
+#   Script Menu Installer - DevCulture XII Store VPN Premium
+#   Menginstall semua script manajemen ke /usr/bin
+# ================================================================
 
-wget -q -O /usr/bin/menu "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/menu.sh"
-wget -q -O /usr/bin/add-ws "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/add-ws.sh"
-wget -q -O /usr/bin/add-ssws "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/add-ssws.sh"
-#wget -q -O /usr/bin/add-socks "https://raw.githubusercontent.com/Agunxzzz/XrayCol/main/minacantik/add-socks.sh"
-wget -q -O /usr/bin/add-vless "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/add-vless.sh"
-wget -q -O /usr/bin/add-tr "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/add-tr.sh"
-wget -q -O /usr/bin/add-trgo "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/add-trgo.sh"
-wget -q -O /usr/bin/autoreboot "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/autoreboot.sh"
-wget -q -O /usr/bin/restart "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/restart.sh"
-wget -q -O /usr/bin/tendang "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/tendang.sh"
-wget -q -O /usr/bin/clearlog "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/clearlog.sh"
-wget -q -O /usr/bin/running "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/running.sh"
-wget -q -O /usr/bin/cek-trafik "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/cek-trafik.sh"
-wget -q -O /usr/bin/cek-speed "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/speedtes_cli.py"
-wget -q -O /usr/bin/cek-bandwidth "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/cek-bandwidth.sh"
-wget -q -O /usr/bin/cek-ram "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/ram.sh"
-wget -q -O /usr/bin/limit-speed "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/limit-speed.sh"
-wget -q -O /usr/bin/menu-vless "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/menu-vless.sh"
-wget -q -O /usr/bin/menu-vmess "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/menu-vmess.sh"
-#wget -q -O /usr/bin/menu-socks "https://raw.githubusercontent.com/Agunxzzz/XrayCol/main/minacantik/menu-socks.sh"
-wget -q -O /usr/bin/menu-ss "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/menu-ss.sh"
-wget -q -O /usr/bin/menu-trojan "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/menu-trojan.sh"
-#wget -q -O /usr/bin/menu-trgo "https://raw.githubusercontent.com/Agunxzzz/XrayCol/main/minacantik/menu-trgo.sh"
-wget -q -O /usr/bin/menu-ssh "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/menu-ssh.sh"
-#wget -q -O /usr/bin/menu-bckp "https://raw.githubusercontent.com/Agunxzzz/XrayCol/main/minacantik/menu-bckp-telegram.sh"
-wget -q -O /usr/bin/menu-bckp "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/menu-bckp-github.sh"
-#wget -q -O /usr/bin/bckp "https://raw.githubusercontent.com/Agunxzzz/XrayCol/main/minacantik/bckpbot.sh"
-wget -q -O /usr/bin/usernew "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/usernew.sh"
-wget -q -O /usr/bin/menu "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/menu.sh"
-wget -q -O /usr/bin/wbm "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/webmin.sh"
-wget -q -O /usr/bin/changer "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/changer.sh"
-wget -q -O /usr/bin/xp "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/xp.sh"
-wget -q -O /usr/bin/addhost  "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/addhost.sh"
-wget -q -O /usr/bin/genssl  "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/genssl.sh"
-wget -q -O /usr/bin/fix "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/cf.sh"
-#wget -q -O /usr/bin/update "https://raw.githubusercontent.com/Agunxzzz/XrayCol/main/minacantik/update.sh"
-wget -q -O /etc/issue.net "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/issue.net"
-wget -q -O /root/versi "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/versibasic"
-wget -q -O /usr/bin/updatsc "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/update.sh"
-wget -q -O /usr/bin/menu-backup "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/menu-backup.sh"
-wget https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/backup/set-br.sh
-bash set-br.sh
-chmod +x /usr/bin/menu-backup
-chmod +x /usr/bin/menu
-chmod +x /usr/bin/add-ws
-chmod +x /usr/bin/add-ssws
-#chmod +x /usr/bin/add-socks
-chmod +x /usr/bin/add-vless
-chmod +x /usr/bin/add-tr
-#chmod +x /usr/bin/add-trgo
-chmod +x /usr/bin/usernew
-chmod +x /usr/bin/autoreboot
-chmod +x /usr/bin/addhost
-chmod +x /usr/bin/genssl
-chmod +x /usr/bin/restart
-chmod +x /usr/bin/tendang
-chmod +x /usr/bin/clearlog
-chmod +x /usr/bin/running
-chmod +x /usr/bin/cek-trafik
-chmod +x /usr/bin/cek-speed
-chmod +x /usr/bin/cek-bandwidth
-chmod +x /usr/bin/cek-ram
-chmod +x /usr/bin/limit-speed
-chmod +x /usr/bin/menu-vless
-chmod +x /usr/bin/menu-vmess
-chmod +x /usr/bin/menu-ss
-chmod +x /usr/bin/updatsc
-#chmod +x /usr/bin/menu-socks
-chmod +x /usr/bin/menu-trojan
-#chmod +x /usr/bin/menu-trgo
-chmod +x /usr/bin/menu-ssh
-chmod +x /usr/bin/menu-bckp
-chmod +x /usr/bin/menu
-#chmod +x /usr/bin/bckp
-chmod +x /usr/bin/wbm
-chmod +x /usr/bin/xp
-chmod +x /usr/bin/changer
-chmod +x /usr/bin/fix
-#chmod +x /usr/bin/update
+GITHUB_RAW="https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main"
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+ERRORS=0
+
+OK="[${GREEN}  OK  ${NC}]"
+ERR="[${RED} FAIL ${NC}]"
+
+# Install satu file dengan verifikasi
+install_file() {
+    local src="$1"
+    local dest="$2"
+    local label="$3"
+    local is_exec="${4:-true}"
+
+    if wget -q --timeout=30 --tries=3 -O "${dest}.tmp" "${GITHUB_RAW}/${src}" 2>/dev/null \
+       && [[ -s "${dest}.tmp" ]] \
+       && ! grep -q "404: Not Found" "${dest}.tmp" 2>/dev/null; then
+        mv "${dest}.tmp" "$dest"
+        [[ "$is_exec" == "true" ]] && chmod +x "$dest"
+        echo -e "  ${OK} ${label}"
+    else
+        rm -f "${dest}.tmp"
+        echo -e "  ${ERR} ${label} — gagal download"
+        ((ERRORS++))
+    fi
+}
+
+echo -e ""
+echo -e "${CYAN}▶ Menginstall script menu...${NC}"
+
+# ── Menu Utama ────────────────────────────────────────────────────
+install_file "menu.sh"              "/usr/bin/menu"         "Menu Utama"
+install_file "usernew.sh"           "/usr/bin/usernew"      "User Management"
+install_file "xp.sh"                "/usr/bin/xp"           "Auto Expire Akun"
+install_file "changer.sh"           "/usr/bin/changer"      "Port Changer"
+install_file "addhost.sh"           "/usr/bin/addhost"      "Add Host/Domain"
+install_file "genssl.sh"            "/usr/bin/genssl"       "Generate SSL"
+install_file "cf.sh"                "/usr/bin/fix"          "Fix CF/Pointing"
+install_file "webmin.sh"            "/usr/bin/wbm"          "Webmin"
+install_file "update.sh"            "/usr/bin/updatsc"      "Auto Updater"
+
+# ── Menu Protokol ─────────────────────────────────────────────────
+install_file "menu-vmess.sh"        "/usr/bin/menu-vmess"   "Menu VMess"
+install_file "menu-ss.sh"           "/usr/bin/menu-ss"      "Menu Shadowsocks"
+install_file "menu-trojan.sh"       "/usr/bin/menu-trojan"  "Menu Trojan"
+install_file "menu-bckp-github.sh"  "/usr/bin/menu-bckp"   "Menu Backup GitHub"
+install_file "menu-backup.sh"       "/usr/bin/menu-backup"  "Menu Backup"
+
+# ── Script Akun ───────────────────────────────────────────────────
+install_file "add-ws.sh"            "/usr/bin/add-ws"       "Add VMess WS"
+install_file "add-ssws.sh"          "/usr/bin/add-ssws"     "Add Shadowsocks WS"
+install_file "add-vless.sh"         "/usr/bin/add-vless"    "Add Vless"
+install_file "add-tr.sh"            "/usr/bin/add-tr"       "Add Trojan"
+install_file "add-trgo.sh"          "/usr/bin/add-trgo"     "Add Trojan-Go"
+
+# ── Script Sistem ─────────────────────────────────────────────────
+install_file "autoreboot.sh"        "/usr/bin/autoreboot"   "Auto Reboot"
+install_file "restart.sh"           "/usr/bin/restart"      "Restart Services"
+install_file "tendang.sh"           "/usr/bin/tendang"      "Kick User"
+install_file "clearlog.sh"          "/usr/bin/clearlog"     "Clear Log"
+install_file "log.sh"               "/usr/bin/clog"         "Auto Clear Log"
+install_file "running.sh"           "/usr/bin/running"      "Cek Running Services"
+install_file "cek-trafik.sh"        "/usr/bin/cek-trafik"   "Cek Trafik"
+install_file "speedtes_cli.py"      "/usr/bin/cek-speed"    "Speed Test"
+install_file "cek-bandwidth.sh"     "/usr/bin/cek-bandwidth" "Cek Bandwidth"
+install_file "ram.sh"               "/usr/bin/cek-ram"      "Cek RAM"
+install_file "limit-speed.sh"       "/usr/bin/limit-speed"  "Limit Speed"
+
+# ── File Konfigurasi ─────────────────────────────────────────────
+install_file "issue.net"            "/etc/issue.net"        "Banner Login" "false"
+install_file "versibasic.txt"       "/root/versi"           "File Versi" "false"
+
+echo ""
+if [[ $ERRORS -eq 0 ]]; then
+    echo -e "  ${OK} Semua ${GREEN}script berhasil diinstall${NC}"
+else
+    echo -e "  [${RED} WARN ${NC}] Selesai dengan ${ERRORS} error"
+fi

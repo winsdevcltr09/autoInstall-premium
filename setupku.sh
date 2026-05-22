@@ -1,239 +1,493 @@
 #!/bin/bash
-# // Script By DevCulture XII Store
-# // ini adalah script autoinstall ssh multiport untuk instalasi vpn server dan tunneling service
-MYIP=$(curl -sS ipv4.icanhazip.com)
-red='\e[1;31m'
-green='\e[0;32m'
-yell='\e[1;33m'
-tyblue='\e[1;36m'
-NC='\e[0m'
+# ================================================================
+#   Script Installer - DevCulture XII Store VPN Premium
+#   Version : 3.0.0 LTS
+#   GitHub  : github.com/winsdevcltr09/autoInstall-premium
+#   OS      : Ubuntu 18.04 / 20.04 / 22.04 | Debian 10 / 11
+#   By      : DevCulture XII Store
+# ================================================================
 
-localip=$(hostname -I | cut -d\  -f1)
-hst=( `hostname` )
-dart=$(cat /etc/hosts | grep -w `hostname` | awk '{print $2}')
-if [[ "$hst" != "$dart" ]]; then
-echo "$localip $(hostname)" >> /etc/hosts
-fi
-if [ -f "/root/log-install.txt" ]; then
-rm -fr /root/log-install.txt
-fi
-mkdir -p /etc/xray
-mkdir -p /etc/v2ray
-touch /etc/xray/domain
-touch /etc/v2ray/domain
-touch /etc/xray/scdomain
-touch /etc/v2ray/scdomain
+# ── Color Definitions ────────────────────────────────────────────
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+BLUE='\033[0;34m'
+WHITE='\033[1;37m'
+MAGENTA='\033[0;35m'
+BOLD='\033[1m'
+NC='\033[0m'
 
-ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
-sysctl -w net.ipv6.conf.all.disable_ipv6=1 >/dev/null 2>&1
-sysctl -w net.ipv6.conf.default.disable_ipv6=1 >/dev/null 2>&1
+OK="[${GREEN}  OK  ${NC}]"
+ERR="[${RED} FAIL ${NC}]"
+INFO="[${CYAN} INFO ${NC}]"
+WARN="[${YELLOW} WARN ${NC}]"
+STEP="[${MAGENTA} STEP ${NC}]"
 
-apt install git curl -y >/dev/null 2>&1
-apt install python -y >/dev/null 2>&1
-echo -e "[ ${green}INFO${NC} ] Aight good ... installation file is ready"
-sleep 2
+GITHUB_RAW="https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main"
+LOG_FILE="/root/log-install.txt"
+ERRORS=0
 
+# ── Helper: log to file ───────────────────────────────────────────
+log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"; }
 
-mkdir -p /var/lib/scrz-prem >/dev/null 2>&1
-echo "IP=" >> /var/lib/scrz-prem/ipvps.conf
-
-sudo at install squid -y
-sudo apt install net-tools -y
-sudo apt install vnstat -y
-wget -q https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/tools.sh && chmod +x tools.sh && ./tools.sh
-rm tools.sh
-clear
-# izin
-MYIP=$(wget -qO- ipinfo.io/ip);
-echo "memeriksa vps anda"
-sleep 0.5
-CEKEXPIRED () {
-        today=$(date -d +1day +%Y -%m -%d)
-        Exp1=$(curl -sS https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/izin | grep $MYIP | awk '{print $3}')
-        if [[ $today < $Exp1 ]]; then
-        echo "status script aktif.."
-        else
-        echo "SCRIPT ANDA EXPIRED";
-        exit 0
-fi
+# ── Banner ────────────────────────────────────────────────────────
+banner() {
+    clear
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "     ${WHITE}${BOLD}   ____  _______  _____ ____    __  ___  ___ ${NC}"
+    echo -e "     ${CYAN}  |  _ \\/ ___\\ \\/ /_ _|___ \\  \\ \\/ / ||_ _|${NC}"
+    echo -e "     ${CYAN}  | | | | |    \\  / | |  __) |  \\  /   | || ${NC}"
+    echo -e "     ${CYAN}  | |_| | |___ /  \\ | | / __/   /  \\   | | ${NC}"
+    echo -e "     ${CYAN}  |____/ \\____/_/\\_\\___|_____| /_/\\_\\ |___|${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "     ${WHITE}${BOLD}    DevCulture XII Store - Auto Installer VPN${NC}"
+    echo -e "     ${CYAN}    Version 3.0.0 LTS | Ubuntu & Debian${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
 }
-IZIN=$(curl -sS https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/izin | awk '{print $4}' | grep $MYIP)
-if [ $MYIP = $IZIN ]; then
-echo "IZIN DI TERIMA!!"
-CEKEXPIRED
-else
-echo "Akses di tolak!! Benget sia hurung!!";
-exit 0
-fi
 
-clear
-echo "Add Domain for vmess/vless/trojan dll"
-echo " "
-read -rp "Input ur domain : " -e pp
-    if [ -z $pp ]; then
-        echo -e "
-        Nothing input for domain!
-        Then a random domain will be created"
+# ── Check root ───────────────────────────────────────────────────
+check_root() {
+    if [[ $EUID -ne 0 ]]; then
+        echo -e "${ERR} Jalankan script ini sebagai ${RED}root${NC}!"
+        echo -e "     Ketik: ${YELLOW}sudo -i${NC} lalu jalankan ulang."
+        exit 1
+    fi
+    echo -e "${OK} Akses root terverifikasi"
+}
+
+# ── Check & validate OS ──────────────────────────────────────────
+check_os() {
+    echo -e "${INFO} Mendeteksi sistem operasi..."
+    if [[ ! -f /etc/os-release ]]; then
+        echo -e "${ERR} File /etc/os-release tidak ditemukan. OS tidak dikenali."
+        exit 1
+    fi
+    . /etc/os-release
+    OS_NAME="$ID"
+    OS_VERSION="$VERSION_ID"
+    OS_PRETTY="$PRETTY_NAME"
+
+    case "$OS_NAME" in
+        ubuntu)
+            case "$OS_VERSION" in
+                18.04)
+                    echo -e "${WARN} Ubuntu 18.04 - Dukungan terbatas. Beberapa fitur mungkin tidak berfungsi."
+                    ;;
+                20.04)
+                    echo -e "${OK} OS: ${GREEN}Ubuntu 20.04 LTS (Focal Fossa) - Direkomendasikan${NC}"
+                    ;;
+                22.04)
+                    echo -e "${OK} OS: ${GREEN}Ubuntu 22.04 LTS (Jammy Jellyfish) - Didukung${NC}"
+                    ;;
+                *)
+                    echo -e "${ERR} Ubuntu ${OS_VERSION} tidak didukung!"
+                    echo -e "     OS yang didukung: Ubuntu 18.04 / 20.04 / 22.04"
+                    exit 1
+                    ;;
+            esac
+            ;;
+        debian)
+            case "$OS_VERSION" in
+                10|11)
+                    echo -e "${OK} OS: ${GREEN}Debian ${OS_VERSION} - Didukung${NC}"
+                    ;;
+                *)
+                    echo -e "${ERR} Debian ${OS_VERSION} tidak didukung!"
+                    exit 1
+                    ;;
+            esac
+            ;;
+        *)
+            echo -e "${ERR} OS ${RED}${OS_NAME}${NC} tidak didukung!"
+            echo -e "     Gunakan: Ubuntu 18.04/20.04/22.04 atau Debian 10/11"
+            exit 1
+            ;;
+    esac
+
+    # Cek arsitektur
+    ARCH=$(uname -m)
+    if [[ "$ARCH" != "x86_64" ]]; then
+        echo -e "${WARN} Arsitektur ${ARCH} belum diuji (direkomendasikan: x86_64)"
     else
-        echo "$pp" > /root/scdomain
-	echo "$pp" > /etc/xray/scdomain
-	echo "$pp" > /etc/xray/domain
-	echo "$pp" > /etc/v2ray/domain
-	echo $pp > /root/domain
-        echo "IP=$pp" > /var/lib/scrz-prem/ipvps.conf
+        echo -e "${OK} Arsitektur: ${GREEN}x86_64${NC}"
     fi
 
-clear
-#install ssh ovpn
-echo -e "\e[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-echo -e "$green      Install SSH / WS               $NC"
-echo -e "\e[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-sleep 2
-clear
-wget https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/autoscript-ssh-slowdns-main/ssh-vpn.sh && chmod +x ssh-vpn.sh && ./ssh-vpn.sh
-sleep 2
-clear
-wget https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/nginx-ssl.sh && chmod +x nginx-ssl.sh && ./nginx-ssl.sh
+    log "OS: ${OS_PRETTY} | Arch: ${ARCH}"
+}
 
+# ── Check internet ───────────────────────────────────────────────
+check_internet() {
+    echo -e "${INFO} Memeriksa koneksi internet..."
+    if ! ping -c 1 -W 5 8.8.8.8 &>/dev/null; then
+        echo -e "${ERR} Tidak ada koneksi internet!"
+        exit 1
+    fi
+    echo -e "${OK} Koneksi internet aktif"
+    MYIP=$(curl -sf --max-time 10 ipv4.icanhazip.com 2>/dev/null || \
+           curl -sf --max-time 10 ifconfig.me 2>/dev/null || \
+           wget -qO- --timeout=10 ipinfo.io/ip 2>/dev/null)
+    if [[ -z "$MYIP" ]]; then
+        echo -e "${WARN} Tidak bisa mendeteksi IP publik"
+        MYIP="unknown"
+    else
+        echo -e "${OK} IP VPS: ${GREEN}${MYIP}${NC}"
+    fi
+    log "IP VPS: ${MYIP}"
+}
 
-#install ssh ovpn
-echo -e "\e[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-echo -e "$green      Install Websocket              $NC"
-echo -e "\e[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-sleep 2
-clear
-wget https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/Insshws/insshws.sh && chmod +x insshws.sh && ./insshws.sh
+# ── Check izin ───────────────────────────────────────────────────
+check_izin() {
+    echo -e "${INFO} Memeriksa izin akses script..."
+    local IZIN_URL="${GITHUB_RAW}/izin"
+    local IZIN_DATA
+    IZIN_DATA=$(curl -sf --max-time 15 "$IZIN_URL" 2>/dev/null)
 
-#exp
-cd /usr/bin
-wget -O xp "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/xp.sh"
-chmod +x xp
-sleep 1
-wget -q -O /usr/bin/notramcpu "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/Finaleuy/notramcpu" && chmod +x /usr/bin/notramcpu
+    if [[ -z "$IZIN_DATA" ]]; then
+        echo -e "${WARN} Tidak bisa mengambil data izin. Melanjutkan..."
+        return 0
+    fi
 
-cd
-#remove log 
-#wget -q -O /usr/bin/removelog "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/log.sh" && chmod +x /usr/bin/removelog
-#sleep 1
-rm -f /root/ins-xray.sh
-rm -f /root/insshws.sh
-rm -f /root/xraymode.sh
+    local IZIN_IP
+    IZIN_IP=$(echo "$IZIN_DATA" | grep -v "^#" | awk '{print $3}' | grep -w "$MYIP")
 
-#xray
-echo -e "\e[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-echo -e "$green      Install Xray              $NC"
-echo -e "\e[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-sleep 2
-wget -q -O ins-xray.sh https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/ins-xray.sh && chmod +x ins-xray.sh && ./ins-xray.sh
-sleep 1
-wget -q -O senmenu.sh https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/senmenu.sh && chmod +x senmenu.sh && ./senmenu.sh
-echo -e "\e[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-echo -e "$green      Install slowdns              $NC"
-echo -e "\e[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-sleep 2
-wget -q -O slowdns.sh https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/autoscript-ssh-slowdns-main/slowdns.sh && chmod +x slowdns.sh && ./slowdns.sh
-echo -e "\e[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-echo -e "$green      Install openvpn              $NC"
-echo -e "\e[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-sleep 2
-wget -q -O vpn.sh https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/ssh-vpn.sh && chmod 777 vpn.sh && ./vpn.sh
-#cronjob
-#echo "30 * * * * root removelog" >> /etc/crontab
+    if [[ -z "$IZIN_IP" ]]; then
+        echo -e "${ERR} IP ${RED}${MYIP}${NC} tidak terdaftar!"
+        echo -e "     Hubungi admin untuk mendaftarkan IP VPS Anda."
+        echo -e "     ${CYAN}Telegram: t.me/dcxii${NC}"
+        exit 1
+    fi
 
-#pemangkuvmessvless
-mkdir /root/akun
-mkdir /root/akun/vmess
-mkdir /root/akun/vless
-mkdir /root/akun/shadowsocks
-mkdir /root/akun/trojan
+    local EXP_DATE
+    EXP_DATE=$(echo "$IZIN_DATA" | grep -w "$MYIP" | awk '{print $2}')
+    local TODAY
+    TODAY=$(date +%Y-%m-%d)
 
+    if [[ "$TODAY" > "$EXP_DATE" ]]; then
+        echo -e "${ERR} Lisensi untuk IP ${RED}${MYIP}${NC} sudah EXPIRED pada ${EXP_DATE}!"
+        echo -e "     Perpanjang lisensi: ${CYAN}t.me/dcxii${NC}"
+        exit 1
+    fi
 
-#install remove log
-echo "0 5 * * * root reboot" >> /etc/crontab
-echo "* * * * * root clog" >> /etc/crontab
-echo "59 * * * * root pkill 'menu'" >> /etc/crontab
-echo "0 1 * * * root xp" >> /etc/crontab
-echo "*/5 * * * * root notramcpu" >> /etc/crontab
-service cron restart
-clear
-org=$(curl -s https://ipapi.co/org )
-echo "$org" > /root/.isp
+    local CLIENT_NAME
+    CLIENT_NAME=$(echo "$IZIN_DATA" | grep -w "$MYIP" | awk '{print $1}')
+    echo -e "${OK} Izin diterima — Client: ${GREEN}${CLIENT_NAME}${NC} | Exp: ${GREEN}${EXP_DATE}${NC}"
+    log "Izin: ${CLIENT_NAME} | Exp: ${EXP_DATE}"
+}
 
-cat> /root/.profile << END
+# ── Input domain ──────────────────────────────────────────────────
+input_domain() {
+    echo ""
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "     ${WHITE}${BOLD} Setup Domain${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${INFO} Domain digunakan untuk VMess/Vless/Trojan TLS"
+    echo -e "${WARN} Pastikan domain sudah pointing ke IP VPS: ${GREEN}${MYIP}${NC}"
+    echo ""
+    read -rp "  Input domain (contoh: vpn.example.com): " DOMAIN
+    echo ""
+
+    if [[ -z "$DOMAIN" ]]; then
+        echo -e "${WARN} Domain kosong. Menggunakan IP VPS sebagai fallback: ${YELLOW}${MYIP}${NC}"
+        DOMAIN="$MYIP"
+    fi
+
+    # Simpan domain
+    mkdir -p /etc/xray /etc/v2ray
+    echo "$DOMAIN" > /etc/xray/domain
+    echo "$DOMAIN" > /etc/v2ray/domain
+    echo "$DOMAIN" > /etc/xray/scdomain
+    echo "$DOMAIN" > /etc/v2ray/scdomain
+    echo "$DOMAIN" > /root/domain
+    echo "$DOMAIN" > /root/scdomain
+    mkdir -p /var/lib/scrz-prem
+    echo "IP=$DOMAIN" > /var/lib/scrz-prem/ipvps.conf
+
+    echo -e "${OK} Domain disimpan: ${GREEN}${DOMAIN}${NC}"
+    log "Domain: ${DOMAIN}"
+}
+
+# ── Install dependencies ─────────────────────────────────────────
+install_deps() {
+    echo ""
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "     ${WHITE}${BOLD} [1/6] Update & Install Dependencies${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+    echo -e "${INFO} Update paket sistem..."
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update -qq 2>/dev/null
+    apt-get upgrade -y -qq 2>/dev/null
+    echo -e "${OK} Sistem diperbarui"
+
+    # Hapus paket konflik
+    echo -e "${INFO} Menghapus paket konflik..."
+    apt-get remove --purge -y ufw firewalld exim4 apache2 &>/dev/null
+    echo -e "${OK} Paket konflik dihapus"
+
+    # Paket dasar
+    echo -e "${INFO} Menginstall dependensi utama..."
+    local PKGS=(
+        curl wget git zip unzip jq socat cron
+        net-tools iptables iptables-persistent
+        openssl ca-certificates gnupg lsb-release
+        build-essential libssl-dev
+        screen tmux htop iftop vnstat
+        fail2ban rsyslog logrotate
+        dropbear stunnel4
+        squid net-tools bc
+        bash-completion ntpdate chrony
+        lsof dnsutils xz-utils
+        sed gawk grep
+    )
+
+    # Python (berbeda per OS)
+    if [[ "$OS_NAME" == "ubuntu" && "$OS_VERSION" == "22.04" ]]; then
+        PKGS+=(python3 python3-pip)
+    else
+        PKGS+=(python3 python3-pip)
+        apt-get install -y python2 &>/dev/null || true
+    fi
+
+    apt-get install -y "${PKGS[@]}" -qq 2>/dev/null
+    echo -e "${OK} Dependensi utama terinstall"
+
+    # Node.js
+    echo -e "${INFO} Menginstall Node.js..."
+    if ! command -v node &>/dev/null; then
+        curl -fsSL https://deb.nodesource.com/setup_18.x | bash - &>/dev/null
+        apt-get install -y nodejs -qq &>/dev/null
+    fi
+    echo -e "${OK} Node.js $(node -v 2>/dev/null || echo 'terinstall')"
+
+    log "Dependencies installed"
+}
+
+# ── System configuration ─────────────────────────────────────────
+system_config() {
+    echo ""
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "     ${WHITE}${BOLD} [2/6] Konfigurasi Sistem${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+    # Timezone
+    ln -sf /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
+    echo -e "${OK} Timezone: Asia/Jakarta (GMT+7)"
+
+    # Disable IPv6
+    cat >> /etc/sysctl.conf << 'EOF'
+net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+net.ipv6.conf.lo.disable_ipv6 = 1
+EOF
+    sysctl -p &>/dev/null
+    echo -e "${OK} IPv6 dinonaktifkan"
+
+    # Hostname fix
+    local LOCALIP
+    LOCALIP=$(hostname -I | awk '{print $1}')
+    local HST
+    HST=$(hostname)
+    if ! grep -q "$HST" /etc/hosts; then
+        echo "$LOCALIP $HST" >> /etc/hosts
+    fi
+    echo -e "${OK} Hostname dikonfigurasi"
+
+    # Buat direktori yang diperlukan
+    mkdir -p /root/akun/{vmess,vless,shadowsocks,trojan}
+    mkdir -p /etc/xray /etc/v2ray /var/lib/scrz-prem
+    mkdir -p /root/backup
+    echo -e "${OK} Direktori sistem dibuat"
+
+    log "System configured"
+}
+
+# ── Download & run sub-installers ────────────────────────────────
+run_dl() {
+    local label="$1"
+    local url_path="$2"
+    local filename="$3"
+    echo -e "${STEP} ${label}..."
+    if wget -q --timeout=60 --tries=3 -O "/tmp/${filename}" "${GITHUB_RAW}/${url_path}" 2>/dev/null \
+       && [[ -s "/tmp/${filename}" ]] \
+       && ! grep -q "404: Not Found" "/tmp/${filename}" 2>/dev/null; then
+        chmod +x "/tmp/${filename}"
+        bash "/tmp/${filename}"
+        local EXIT_CODE=$?
+        rm -f "/tmp/${filename}"
+        if [[ $EXIT_CODE -eq 0 ]]; then
+            echo -e "${OK} ${label} selesai"
+        else
+            echo -e "${WARN} ${label} selesai dengan kode: ${EXIT_CODE}"
+        fi
+    else
+        echo -e "${ERR} Gagal download ${label} dari: ${GITHUB_RAW}/${url_path}"
+        ((ERRORS++))
+    fi
+}
+
+install_services() {
+    echo ""
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "     ${WHITE}${BOLD} [3/6] Install SSH & Websocket${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    run_dl "SSH & Multi-Port" "ssh-vpn.sh" "ssh-vpn.sh"
+    run_dl "Nginx SSL" "nginx-ssl.sh" "nginx-ssl.sh"
+    run_dl "WebSocket (SSH)" "insshws.sh" "insshws.sh"
+
+    echo ""
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "     ${WHITE}${BOLD} [4/6] Install Xray Core${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    run_dl "Xray Core" "ins-xray.sh" "ins-xray.sh"
+
+    echo ""
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "     ${WHITE}${BOLD} [5/6] Install SlowDNS${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    run_dl "SlowDNS" "slow.sh" "slow.sh"
+}
+
+# ── Install menu scripts ─────────────────────────────────────────
+install_menus() {
+    echo ""
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "     ${WHITE}${BOLD} [6/6] Install Menu & Script Manajemen${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+    # Jalankan senmenu.sh untuk install semua menu sekaligus
+    run_dl "Semua Script Menu" "senmenu.sh" "senmenu.sh"
+
+    # Pastikan update script ada
+    wget -q --timeout=30 -O /usr/bin/updatsc "${GITHUB_RAW}/update.sh" 2>/dev/null && chmod +x /usr/bin/updatsc
+    echo -e "${OK} Script update terpasang di /usr/bin/updatsc"
+}
+
+# ── Setup cronjobs ───────────────────────────────────────────────
+setup_cron() {
+    echo -e "${INFO} Mengatur cronjob..."
+    # Hapus entri lama jika ada
+    sed -i '/root reboot\|root clog\|root pkill.*menu\|root xp\|root notramcpu/d' /etc/crontab 2>/dev/null
+
+    cat >> /etc/crontab << 'CRONEOF'
+0 5 * * * root /sbin/reboot
+* * * * * root /usr/bin/clog
+59 * * * * root pkill -f menu
+0 1 * * * root /usr/bin/xp
+*/5 * * * * root /usr/bin/notramcpu
+CRONEOF
+
+    systemctl enable cron &>/dev/null
+    systemctl restart cron &>/dev/null
+    echo -e "${OK} Cronjob dikonfigurasi"
+    log "Cron configured"
+}
+
+# ── Setup auto-login menu ─────────────────────────────────────────
+setup_profile() {
+    cat > /root/.profile << 'PROFEOF'
+# ~/.profile: DevCulture XII Store
 if [ "$BASH" ]; then
-if [ -f ~/.bashrc ]; then
-. ~/.bashrc
+  if [ -f ~/.bashrc ]; then
+    . ~/.bashrc
+  fi
 fi
-fi
-mesg n || true
+mesg n 2>/dev/null || true
 clear
 menu
-END
-chmod 644 /root/.profile
-if [ -f "/root/log-install.txt" ]; then
-rm -fr /root/log-install.txt
-fi
-cd
-echo "3.0.0" > versi
-clear
-rm -f ins-xray.sh
-rm -f senmenu.sh
-rm -f setupku.sh
-rm -f xraymode.sh
-rm -f slowdns.sh
+PROFEOF
+    chmod 644 /root/.profile
+    echo -e "${OK} Auto-launch menu dikonfigurasi"
 
-echo "===============-[ DevCulture XII Store VPN PREMIUM ]-================"
-echo ""
-echo "------------------------------------------------------------"
-echo ""
-echo "   >>> Service & Port"  | tee -a log-install.txt
-echo "   - OpenSSH                 : 22, 53, 2222, 2269"  | tee -a log-install.txt
-echo "   - SSH Websocket           : 80,8880,8080" | tee -a log-install.txt
-echo "   - SSH SSL Websocket       : 443" | tee -a log-install.txt
-echo "   - Stunnel5                : 222, 777" | tee -a log-install.txt
-echo "   - Dropbear                : 109, 143" | tee -a log-install.txt
-echo "   - Badvpn                  : 7100-7300" | tee -a log-install.txt
-echo "   - Nginx                   : 81" | tee -a log-install.txt
-echo "   - XRAY  Vmess TLS         : 443" | tee -a log-install.txt
-echo "   - XRAY  Vmess None TLS    : 80" | tee -a log-install.txt
-echo "   - XRAY  Vless TLS         : 443" | tee -a log-install.txt
-echo "   - XRAY  Vless None TLS    : 80" | tee -a log-install.txt
-echo "   - Trojan GRPC             : 443" | tee -a log-install.txt
-echo "   - Trojan WS               : 443" | tee -a log-install.txt
-echo "   - Trojan GO               : 443" | tee -a log-install.txt
-echo "   - Sodosok WS/GRPC         : 443" | tee -a log-install.txt
-echo "   - slowdns                 : 443,80,8080,53,5300" | tee -a log-install.txt
-echo ""  | tee -a log-install.txt
-echo "   >>> Server Information & Other Features"  | tee -a log-install.txt
-echo "   - Timezone                : Asia/Jakarta (GMT +7)"  | tee -a log-install.txt
-echo "   - Fail2Ban                : [ON]"  | tee -a log-install.txt
-echo "   - Dflate                  : [ON]"  | tee -a log-install.txt
-echo "   - IPtables                : [ON]"  | tee -a log-install.txt
-echo "   - Auto-Reboot             : [ON]"  | tee -a log-install.txt
-echo "   - IPv6                    : [OFF]"  | tee -a log-install.txt
-echo "   - Autobackup Data" | tee -a log-install.txt
-echo "   - AutoKill Multi Login User" | tee -a log-install.txt
-echo "   - Auto Delete Expired Account" | tee -a log-install.txt
-echo "   - Fully automatic script" | tee -a log-install.txt
-echo "   - VPS settings" | tee -a log-install.txt
-echo "   - Admin Control" | tee -a log-install.txt
-echo "   - Change port" | tee -a log-install.txt
-echo "   - Restore Data" | tee -a log-install.txt
-echo "   - Full Orders For Various Services" | tee -a log-install.txt
-echo ""
-echo ""
-echo "------------------------------------------------------------"
-echo ""
-echo "===============-[ Script Credit By DevCulture XII Store VPN PREMIUM ]-==============="
-echo -e ""
-echo ""
-echo "" | tee -a log-install.txt
-echo "ADIOS"
-sleep 1
-echo -ne "[ ${yell}WARNING${NC} ] Do you want to reboot now ? (y/n)? "
-read answer
-if [ "$answer" == "${answer#[Yy]}" ] ;then
-exit 0
-else
-reboot
-fi
+    # Simpan info ISP
+    curl -sf --max-time 10 https://ipapi.co/org > /root/.isp 2>/dev/null || true
+}
+
+# ── Final Summary ─────────────────────────────────────────────────
+show_summary() {
+    clear
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "     ${WHITE}${BOLD}  INSTALASI SELESAI - DevCulture XII Store${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo -e "     ${CYAN}>>> Service & Port${NC}" | tee -a "$LOG_FILE"
+    echo -e "     ${WHITE}OpenSSH             : 22, 53, 2222, 2269${NC}" | tee -a "$LOG_FILE"
+    echo -e "     ${WHITE}SSH Websocket       : 80, 8880, 8080${NC}" | tee -a "$LOG_FILE"
+    echo -e "     ${WHITE}SSH SSL Websocket   : 443${NC}" | tee -a "$LOG_FILE"
+    echo -e "     ${WHITE}Stunnel5            : 222, 777${NC}" | tee -a "$LOG_FILE"
+    echo -e "     ${WHITE}Dropbear            : 109, 143${NC}" | tee -a "$LOG_FILE"
+    echo -e "     ${WHITE}BadVPN (UDP GW)     : 7100–7300${NC}" | tee -a "$LOG_FILE"
+    echo -e "     ${WHITE}Nginx               : 81${NC}" | tee -a "$LOG_FILE"
+    echo -e "     ${WHITE}XRAY VMess TLS      : 443${NC}" | tee -a "$LOG_FILE"
+    echo -e "     ${WHITE}XRAY VMess Non-TLS  : 80${NC}" | tee -a "$LOG_FILE"
+    echo -e "     ${WHITE}XRAY Vless TLS      : 443${NC}" | tee -a "$LOG_FILE"
+    echo -e "     ${WHITE}XRAY Trojan WS/GRPC : 443${NC}" | tee -a "$LOG_FILE"
+    echo -e "     ${WHITE}Shadowsocks WS/GRPC : 443${NC}" | tee -a "$LOG_FILE"
+    echo -e "     ${WHITE}SlowDNS             : 53, 5300${NC}" | tee -a "$LOG_FILE"
+    echo ""
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "     ${CYAN}>>> Fitur Sistem${NC}"
+    echo -e "     ${WHITE}Timezone     : Asia/Jakarta (GMT+7)${NC}"
+    echo -e "     ${WHITE}Fail2Ban     : [ON]${NC}"
+    echo -e "     ${WHITE}IPtables     : [ON]${NC}"
+    echo -e "     ${WHITE}IPv6         : [OFF]${NC}"
+    echo -e "     ${WHITE}Auto-Reboot  : [ON] 05:00 WIB${NC}"
+    echo -e "     ${WHITE}Auto-Expire  : [ON] 01:00 WIB${NC}"
+    echo -e "     ${WHITE}Auto-Update  : ketik ${YELLOW}updatsc${WHITE} di terminal${NC}"
+    echo -e "     ${WHITE}Domain/Host  : ${GREEN}${DOMAIN}${NC}"
+    echo -e "     ${WHITE}IP VPS       : ${GREEN}${MYIP}${NC}"
+    echo ""
+    if [[ $ERRORS -gt 0 ]]; then
+        echo -e "     ${YELLOW}⚠ Ada ${ERRORS} error selama instalasi.${NC}"
+        echo -e "     ${WHITE}Log: ${YELLOW}cat ${LOG_FILE}${NC}"
+    else
+        echo -e "     ${GREEN}✓ Instalasi berhasil tanpa error!${NC}"
+    fi
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "     ${WHITE}${BOLD}  DevCulture XII Store VPN Premium v3.0.0 LTS${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    log "=== Instalasi selesai. Errors: ${ERRORS} ==="
+
+    read -rp "  Reboot sekarang? (y/n): " ANS
+    if [[ "$ANS" =~ ^[Yy]$ ]]; then
+        echo -e "${INFO} Reboot dalam 3 detik..."
+        sleep 3
+        reboot
+    else
+        echo -e "${INFO} Ketik ${YELLOW}menu${NC} untuk membuka panel manajemen."
+        echo ""
+    fi
+}
+
+# ── Main ──────────────────────────────────────────────────────────
+main() {
+    rm -f "$LOG_FILE"
+    log "=== Mulai Instalasi ==="
+
+    banner
+    check_root
+    check_os
+    check_internet
+    check_izin
+    input_domain
+    install_deps
+    system_config
+    install_services
+    install_menus
+    setup_cron
+    setup_profile
+
+    # Versi
+    echo "3.0.0" > /root/versi
+
+    # Bersihkan file sementara
+    cd /root
+    rm -f setupku.sh ins-xray.sh senmenu.sh xraymode.sh slowdns.sh \
+          nginx-ssl.sh ssh-vpn.sh insshws.sh update.sh 2>/dev/null
+
+    show_summary
+}
+
+main
