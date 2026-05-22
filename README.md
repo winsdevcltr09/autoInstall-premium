@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/assets/cyberpunk-banner.png" alt="DevCulture XII Store - VPN Premium" width="100%" />
+<img src="https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/assets/banner.png" alt="DevCulture XII Store - VPN Premium" width="100%" />
 
 <br/><br/>
 
