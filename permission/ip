@@ -1,3 +1,4 @@
-# Format: username expiry-date IP limit
-# Tambah IP VPS Anda di sini
-# Contoh: namauser 2029-12-31 1.2.3.4 3
+# Format: username 3
+# Tambah IP 3
+# Contoh: namauser 2029
+karisnacell7 2026-06-21 104.21.69.223 1
