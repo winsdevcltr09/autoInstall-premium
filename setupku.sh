@@ -3,7 +3,7 @@
 #   Script Installer - DevCulture XII Store VPN Premium
 #   Version : 3.0.0 LTS
 #   GitHub  : github.com/winsdevcltr09/autoInstall-premium
-#   OS      : Ubuntu 18.04 / 20.04 / 22.04 | Debian 10 / 11
+#   OS      : Ubuntu 18.04 / 20.04 / 22.04 / 24.04 LTS | Debian 10 / 11 / 12
 #   By      : DevCulture XII Store
 # ================================================================
 
@@ -81,16 +81,19 @@ check_os() {
                 22.04)
                     echo -e "${OK} OS: ${GREEN}Ubuntu 22.04 LTS (Jammy Jellyfish) - Didukung${NC}"
                     ;;
+                24.04)
+                    echo -e "${OK} OS: ${GREEN}Ubuntu 24.04 LTS (Noble Numbat) - Didukung${NC}"
+                    ;;
                 *)
                     echo -e "${ERR} Ubuntu ${OS_VERSION} tidak didukung!"
-                    echo -e "     OS yang didukung: Ubuntu 18.04 / 20.04 / 22.04"
+                    echo -e "     OS yang didukung: Ubuntu 18.04 / 20.04 / 22.04 / 24.04"
                     exit 1
                     ;;
             esac
             ;;
         debian)
             case "$OS_VERSION" in
-                10|11)
+                10|11|12)
                     echo -e "${OK} OS: ${GREEN}Debian ${OS_VERSION} - Didukung${NC}"
                     ;;
                 *)
@@ -101,7 +104,7 @@ check_os() {
             ;;
         *)
             echo -e "${ERR} OS ${RED}${OS_NAME}${NC} tidak didukung!"
-            echo -e "     Gunakan: Ubuntu 18.04/20.04/22.04 atau Debian 10/11"
+            echo -e "     Gunakan: Ubuntu 18.04/20.04/22.04/24.04 atau Debian 10/11/12"
             exit 1
             ;;
     esac
@@ -243,11 +246,16 @@ install_deps() {
     )
 
     # Python (berbeda per OS)
-    if [[ "$OS_NAME" == "ubuntu" && "$OS_VERSION" == "22.04" ]]; then
+    if [[ "$OS_NAME" == "ubuntu" && ( "$OS_VERSION" == "22.04" || "$OS_VERSION" == "24.04" ) ]]; then
         PKGS+=(python3 python3-pip)
     else
         PKGS+=(python3 python3-pip)
         apt-get install -y python2 &>/dev/null || true
+    fi
+    # iptables-legacy diperlukan di Ubuntu 24.04
+    if [[ "$OS_NAME" == "ubuntu" && "$OS_VERSION" == "24.04" ]]; then
+        apt-get install -y iptables-legacy &>/dev/null || true
+        update-alternatives --set iptables /usr/sbin/iptables-legacy &>/dev/null || true
     fi
 
     apt-get install -y "${PKGS[@]}" -qq 2>/dev/null
@@ -256,7 +264,11 @@ install_deps() {
     # Node.js
     echo -e "${INFO} Menginstall Node.js..."
     if ! command -v node &>/dev/null; then
-        curl -fsSL https://deb.nodesource.com/setup_18.x | bash - &>/dev/null
+        if [[ "$OS_NAME" == "ubuntu" && "$OS_VERSION" == "24.04" ]]; then
+            curl -fsSL https://deb.nodesource.com/setup_20.x | bash - &>/dev/null
+        else
+            curl -fsSL https://deb.nodesource.com/setup_18.x | bash - &>/dev/null
+        fi
         apt-get install -y nodejs -qq &>/dev/null
     fi
     echo -e "${OK} Node.js $(node -v 2>/dev/null || echo 'terinstall')"
