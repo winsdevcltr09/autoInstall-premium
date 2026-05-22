@@ -10,18 +10,15 @@
 
 <br/>
 
-<!-- Dynamic badges -->
 ![Stars](https://img.shields.io/github/stars/winsdevcltr09/autoInstall-premium?style=for-the-badge&logo=github&color=9B59B6&labelColor=0D0D0D&logoColor=white)
 ![Forks](https://img.shields.io/github/forks/winsdevcltr09/autoInstall-premium?style=for-the-badge&logo=github&color=7D3C98&labelColor=0D0D0D&logoColor=white)
 ![Last Commit](https://img.shields.io/github/last-commit/winsdevcltr09/autoInstall-premium?style=for-the-badge&logo=git&color=6C3483&labelColor=0D0D0D&logoColor=white)
 ![Repo Size](https://img.shields.io/github/repo-size/winsdevcltr09/autoInstall-premium?style=for-the-badge&logo=files&color=8E44AD&labelColor=0D0D0D&logoColor=white)
 
-<!-- Static badges -->
 ![Version](https://img.shields.io/badge/VERSION-3.0.0_LTS-9B59B6?style=flat-square&logo=github&logoColor=white&labelColor=0D0D0D)
 ![Ubuntu](https://img.shields.io/badge/Ubuntu-20.04_%7C_22.04_%7C_24.04-7D3C98?style=flat-square&logo=ubuntu&logoColor=white&labelColor=0D0D0D)
 ![Debian](https://img.shields.io/badge/Debian-10_%7C_11_%7C_12-6C3483?style=flat-square&logo=debian&logoColor=white&labelColor=0D0D0D)
 ![Shell](https://img.shields.io/badge/Shell-Bash-8E44AD?style=flat-square&logo=gnubash&logoColor=white&labelColor=0D0D0D)
-![License](https://img.shields.io/badge/License-Private-5B2C6F?style=flat-square&labelColor=0D0D0D)
 ![Status](https://img.shields.io/badge/Status-Active-27AE60?style=flat-square&labelColor=0D0D0D)
 
 </div>
@@ -44,23 +41,23 @@
 
 ## Persiapan Server
 
-> Wajib dijalankan sebelum instalasi. Perintah ini memperbarui seluruh paket sistem dan melakukan reboot.
+> Wajib dijalankan sebelum instalasi. Memperbarui seluruh paket sistem dan melakukan reboot.
 
 ```bash
 apt-get update && apt-get upgrade -y && apt dist-upgrade -y && update-grub && reboot
 ```
 
 > [!WARNING]
-> Server akan **reboot** setelah perintah ini. Tunggu hingga server kembali online sebelum melanjutkan ke tahap instalasi.
+> Server akan **reboot** setelah perintah ini. Tunggu hingga server kembali online sebelum melanjutkan instalasi.
 
 ---
 
 ## Instalasi
 
-> Setelah server kembali online, jalankan satu perintah berikut untuk memulai instalasi otomatis:
+> Setelah server kembali online, jalankan perintah berikut:
 
 ```bash
-wget -O setup.sh https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/setupku.sh && chmod +x setup.sh && ./setup.sh
+wget https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/setupku.sh && chmod +x setupku.sh && ./setupku.sh
 ```
 
 <details>
@@ -70,12 +67,12 @@ wget -O setup.sh https://raw.githubusercontent.com/winsdevcltr09/autoInstall-pre
 
 | Perintah | Fungsi |
 |:---|:---|
-| `wget -O setup.sh <url>` | Mengunduh skrip installer dari GitHub dan menyimpannya sebagai `setup.sh` |
-| `&&` | Menjalankan perintah berikutnya hanya jika perintah sebelumnya berhasil tanpa error |
-| `chmod +x setup.sh` | Memberikan izin eksekusi agar file bisa dijalankan oleh sistem |
-| `./setup.sh` | Menjalankan installer dari direktori saat ini |
+| `wget <url>` | Mengunduh file `setupku.sh` dari GitHub ke direktori aktif |
+| `&&` | Menjalankan perintah berikutnya hanya jika perintah sebelumnya berhasil |
+| `chmod +x setupku.sh` | Memberikan izin eksekusi pada file `setupku.sh` |
+| `./setupku.sh` | Menjalankan installer |
 
-Script secara otomatis akan **mendeteksi OS**, menginstal dependensi, dan mengkonfigurasi semua protokol VPN sesuai pilihan kamu.
+> Script akan otomatis **mendeteksi OS**, menginstal semua dependensi, dan mengkonfigurasi protokol VPN sesuai pilihan kamu.
 
 </details>
 
@@ -112,9 +109,9 @@ Script secara otomatis akan **mendeteksi OS**, menginstal dependensi, dan mengko
 | **Monitoring** | Cek status akun, expired date, dan penggunaan bandwidth per user |
 | **Jaringan** | Monitor trafik real-time, limit kecepatan per user |
 | **Sistem** | Restart layanan, clear log, jadwal auto reboot, monitor RAM & CPU |
-| **Keamanan** | Generate sertifikat SSL otomatis, ganti port, konfigurasi firewall |
-| **Backup** | Backup dan restore konfigurasi lengkap via GitHub |
-| **Panel** | Akses Webmin panel berbasis web |
+| **Keamanan** | Generate sertifikat SSL otomatis via `genssl.sh` |
+| **Backup** | Backup dan restore konfigurasi via GitHub (`menu-bckp-github.sh`) |
+| **Panel** | Akses Webmin panel berbasis web (`webmin.sh`) |
 
 </div>
 
@@ -138,7 +135,7 @@ Script secara otomatis akan **mendeteksi OS**, menginstal dependensi, dan mengko
 
 ## Panduan Instalasi Lengkap
 
-### 1. Perbarui dan Siapkan Server
+### 1 — Perbarui dan Siapkan Server
 
 Login sebagai **root**, lalu jalankan:
 
@@ -146,25 +143,25 @@ Login sebagai **root**, lalu jalankan:
 apt-get update && apt-get upgrade -y && apt dist-upgrade -y && update-grub && reboot
 ```
 
-### 2. Jalankan Installer
+### 2 — Jalankan Installer Setelah Reboot
 
-Setelah server kembali online, jalankan:
+Setelah server kembali online:
 
 ```bash
-wget -O setup.sh https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/setupku.sh && chmod +x setup.sh && ./setup.sh
+wget https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/setupku.sh && chmod +x setupku.sh && ./setupku.sh
 ```
 
-### 3. Ikuti Panduan di Layar
+### 3 — Ikuti Panduan di Layar
 
-Installer akan meminta input berikut:
+Installer akan meminta:
 
 - **Domain / subdomain** — untuk sertifikat SSL otomatis
 - **Protokol** — pilih protokol yang ingin diaktifkan
 - **Port** — sesuaikan dengan kebutuhan
 
-### 4. Akses Menu Utama
+### 4 — Akses Menu Utama
 
-Setelah instalasi selesai, buka menu pengelolaan dengan:
+Setelah instalasi selesai, ketik:
 
 ```bash
 menu
