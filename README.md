@@ -1,169 +1,170 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/assets/banner.png" alt="DevCulture XII Store - VPN Premium" width="100%" />
-
-<br/><br/>
-
-<img src="https://readme-typing-svg.demolab.com?font=Share+Tech+Mono&size=28&duration=2500&pause=1000&color=9B59B6&center=true&vCenter=true&width=700&height=60&lines=DevCulture+XII+Store+%E2%80%94+VPN+Premium;Auto+Install+%7C+Multi+Protocol+%7C+Full+Managed" alt="Typing SVG" />
+<img src="https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/assets/banner.png" alt="DevCulture XII Store" width="100%" />
 
 <br/>
 
-<img src="https://readme-typing-svg.demolab.com?font=Share+Tech+Mono&size=13&duration=3500&pause=800&color=7D3C98&center=true&vCenter=true&width=620&lines=Initializing+encrypted+tunnel...;SSH+%7C+VMess+%7C+VLESS+%7C+Trojan+%7C+Shadowsocks+online.;All+systems+operational.+Welcome%2C+Operator." alt="Subtitle" />
+<img src="https://readme-typing-svg.demolab.com?font=Share+Tech+Mono&size=24&duration=2800&pause=1000&color=9B59B6&center=true&vCenter=true&width=680&height=55&lines=DevCulture+XII+Store+%E2%80%94+VPN+Premium;SSH+%7C+VMess+%7C+VLESS+%7C+Trojan+%7C+Shadowsocks;Auto+Install+%7C+Multi+Protocol+%7C+Full+Managed" alt="Typing" />
 
-<br/><br/>
+<img src="https://readme-typing-svg.demolab.com?font=Share+Tech+Mono&size=12&duration=3500&pause=900&color=6C3483&center=true&vCenter=true&width=580&lines=Initializing+encrypted+tunnel...;Loading+protocol+modules...;All+systems+operational.+Welcome%2C+Operator." alt="Subtitle" />
 
-![Version](https://img.shields.io/badge/VERSION-3.0.0%20LTS-9B59B6?style=for-the-badge&logo=github&logoColor=white&labelColor=0D0D0D)
-![OS](https://img.shields.io/badge/OS-Ubuntu%20%7C%20Debian-7D3C98?style=for-the-badge&logo=linux&logoColor=white&labelColor=0D0D0D)
-![Shell](https://img.shields.io/badge/SHELL-BASH-6C3483?style=for-the-badge&logo=gnubash&logoColor=white&labelColor=0D0D0D)
-![Status](https://img.shields.io/badge/STATUS-ACTIVE-8E44AD?style=for-the-badge&logo=statuspage&logoColor=white&labelColor=0D0D0D)
+<br/>
+
+<!-- Dynamic badges -->
+![Stars](https://img.shields.io/github/stars/winsdevcltr09/autoInstall-premium?style=for-the-badge&logo=github&color=9B59B6&labelColor=0D0D0D&logoColor=white)
+![Forks](https://img.shields.io/github/forks/winsdevcltr09/autoInstall-premium?style=for-the-badge&logo=github&color=7D3C98&labelColor=0D0D0D&logoColor=white)
+![Last Commit](https://img.shields.io/github/last-commit/winsdevcltr09/autoInstall-premium?style=for-the-badge&logo=git&color=6C3483&labelColor=0D0D0D&logoColor=white)
+![Repo Size](https://img.shields.io/github/repo-size/winsdevcltr09/autoInstall-premium?style=for-the-badge&logo=files&color=8E44AD&labelColor=0D0D0D&logoColor=white)
+
+<!-- Static badges -->
+![Version](https://img.shields.io/badge/VERSION-3.0.0_LTS-9B59B6?style=flat-square&logo=github&logoColor=white&labelColor=0D0D0D)
+![Ubuntu](https://img.shields.io/badge/Ubuntu-20.04_%7C_22.04_%7C_24.04-7D3C98?style=flat-square&logo=ubuntu&logoColor=white&labelColor=0D0D0D)
+![Debian](https://img.shields.io/badge/Debian-10_%7C_11_%7C_12-6C3483?style=flat-square&logo=debian&logoColor=white&labelColor=0D0D0D)
+![Shell](https://img.shields.io/badge/Shell-Bash-8E44AD?style=flat-square&logo=gnubash&logoColor=white&labelColor=0D0D0D)
+![License](https://img.shields.io/badge/License-Private-5B2C6F?style=flat-square&labelColor=0D0D0D)
+![Status](https://img.shields.io/badge/Status-Active-27AE60?style=flat-square&labelColor=0D0D0D)
 
 </div>
+
+<br/>
 
 ---
 
-<div align="center">
+## Daftar Isi
 
-## INSTALASI SATU PERINTAH
+- [Persiapan Server](#-persiapan-server)
+- [Instalasi](#-instalasi)
+- [Protokol](#-protokol-yang-tersedia)
+- [Fitur Manajemen](#-fitur-manajemen)
+- [Sistem yang Didukung](#-sistem-yang-didukung)
+- [Panduan Lengkap](#-panduan-instalasi-lengkap)
+- [Kontak](#-kontak--support)
 
-</div>
+---
 
-> **Langkah 1 — Update server terlebih dahulu** (wajib sebelum instalasi):
+## Persiapan Server
+
+> Wajib dijalankan sebelum instalasi. Perintah ini memperbarui seluruh paket sistem dan melakukan reboot.
 
 ```bash
 apt-get update && apt-get upgrade -y && apt dist-upgrade -y && update-grub && reboot
 ```
 
-> Server akan **reboot**. Setelah kembali online, lanjutkan ke langkah berikutnya.
+> [!WARNING]
+> Server akan **reboot** setelah perintah ini. Tunggu hingga server kembali online sebelum melanjutkan ke tahap instalasi.
 
-<br/>
+---
 
-> **Langkah 2 — Jalankan installer** (salin dan tempel seluruh perintah di bawah, lalu tekan Enter):
+## Instalasi
+
+> Setelah server kembali online, jalankan satu perintah berikut untuk memulai instalasi otomatis:
 
 ```bash
 wget -O setup.sh https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/setupku.sh && chmod +x setup.sh && ./setup.sh
 ```
 
 <details>
-<summary><b>Penjelasan detail setiap bagian perintah instalasi</b></summary>
+<summary><b>Penjelasan detail perintah instalasi</b></summary>
 
 <br/>
 
-| Bagian Perintah | Penjelasan |
+| Perintah | Fungsi |
 |:---|:---|
-| `wget -O setup.sh <url>` | Mengunduh file `setupku.sh` dari GitHub dan menyimpannya sebagai `setup.sh` di server |
-| `&&` | Operator berantai — perintah berikutnya hanya berjalan jika perintah sebelumnya **berhasil** |
-| `chmod +x setup.sh` | Memberikan izin eksekusi pada file yang baru diunduh agar bisa dijalankan oleh sistem |
-| `./setup.sh` | Menjalankan installer langsung dari direktori aktif |
+| `wget -O setup.sh <url>` | Mengunduh skrip installer dari GitHub dan menyimpannya sebagai `setup.sh` |
+| `&&` | Menjalankan perintah berikutnya hanya jika perintah sebelumnya berhasil tanpa error |
+| `chmod +x setup.sh` | Memberikan izin eksekusi agar file bisa dijalankan oleh sistem |
+| `./setup.sh` | Menjalankan installer dari direktori saat ini |
 
-> Script akan otomatis **mendeteksi OS**, memasang dependensi yang diperlukan, dan mengkonfigurasi semua protokol VPN yang kamu pilih.
+Script secara otomatis akan **mendeteksi OS**, menginstal dependensi, dan mengkonfigurasi semua protokol VPN sesuai pilihan kamu.
 
 </details>
 
 ---
 
-<div align="center">
-
-## PROTOKOL YANG TERSEDIA
-
-</div>
+## Protokol yang Tersedia
 
 <div align="center">
 
-| Protokol | Tipe | Port | Enkripsi |
-|:---:|:---:|:---:|:---:|
-| **SSH WebSocket TLS** | TLS | 443 | SSL/TLS |
-| **SSH WebSocket Non-TLS** | Non-TLS | 80 | Tunnel |
-| **SSH Slow DNS** | Multipath | DNS | Tunnel |
-| **SSH UDP** | Multipath | UDP | Tunnel |
-| **Xray VMess WebSocket** | TLS & Non-TLS | 443 / 80 | AES-128-GCM |
-| **Xray VLESS WebSocket** | TLS & Non-TLS | 443 / 80 | XTLS / None |
-| **Xray Trojan WebSocket** | TLS & Non-TLS | 443 / 80 | TLS |
-| **Xray Trojan TCP XTLS** | XTLS | 443 | XTLS |
-| **Xray Trojan TCP TLS** | TLS | 443 | TLS |
-| **Shadowsocks WS/gRPC** | WS / gRPC | 443 / 80 | ChaCha20 |
+| # | Protokol | Mode | Port | Enkripsi |
+|:---:|:---|:---:|:---:|:---:|
+| 01 | SSH WebSocket | TLS | 443 | SSL/TLS |
+| 02 | SSH WebSocket | Non-TLS | 80 | Plain |
+| 03 | SSH Slow DNS | Multipath | DNS | Tunnel |
+| 04 | SSH UDP | Multipath | Custom | Tunnel |
+| 05 | Xray VMess WebSocket | TLS / Non-TLS | 443 / 80 | AES-128-GCM |
+| 06 | Xray VLESS WebSocket | TLS / Non-TLS | 443 / 80 | XTLS / None |
+| 07 | Xray Trojan WebSocket | TLS / Non-TLS | 443 / 80 | TLS |
+| 08 | Xray Trojan TCP | XTLS | 443 | XTLS |
+| 09 | Xray Trojan TCP | TLS | 443 | TLS |
+| 10 | Shadowsocks | WS / gRPC | 443 / 80 | ChaCha20-Poly1305 |
 
 </div>
 
 ---
 
-<div align="center">
-
-## FITUR MANAJEMEN
-
-</div>
+## Fitur Manajemen
 
 <div align="center">
 
-| Fitur | Keterangan |
-|:---|:---|
-| Kelola Akun | Tambah, hapus, dan perpanjang akun semua protokol |
-| Monitor Akun | Cek status akun dan tanggal expired |
-| Bandwidth | Monitor penggunaan bandwidth per user |
-| Trafik | Monitor trafik jaringan real-time |
-| Restart Layanan | Restart semua layanan VPN sekaligus |
-| Clear Log | Bersihkan log server secara otomatis |
-| Backup & Restore | Backup dan restore konfigurasi via GitHub |
-| SSL Generator | Generate sertifikat SSL otomatis |
-| Limit Speed | Atur batas kecepatan per user |
-| Auto Reboot | Jadwalkan reboot otomatis server |
-| Webmin Panel | Akses panel manajemen berbasis web |
+| Kategori | Fitur |
+|:---:|:---|
+| **Akun** | Tambah, hapus, perpanjang masa aktif akun semua protokol |
+| **Monitoring** | Cek status akun, expired date, dan penggunaan bandwidth per user |
+| **Jaringan** | Monitor trafik real-time, limit kecepatan per user |
+| **Sistem** | Restart layanan, clear log, jadwal auto reboot, monitor RAM & CPU |
+| **Keamanan** | Generate sertifikat SSL otomatis, ganti port, konfigurasi firewall |
+| **Backup** | Backup dan restore konfigurasi lengkap via GitHub |
+| **Panel** | Akses Webmin panel berbasis web |
 
 </div>
 
 ---
 
-<div align="center">
-
-## SISTEM YANG DIDUKUNG
-
-</div>
+## Sistem yang Didukung
 
 <div align="center">
 
-| Sistem Operasi | Versi | Status |
-|:---:|:---:|:---:|
-| Ubuntu | 20.04 LTS | **Direkomendasikan** |
-| Ubuntu | 22.04 LTS | Didukung |
-| Ubuntu | 24.04 LTS | Didukung |
-| Ubuntu | 18.04 LTS | Dukungan Terbatas |
-| Debian | 10 / 11 / 12 | Didukung |
+| Sistem Operasi | Versi | Keterangan |
+|:---:|:---:|:---|
+| **Ubuntu** | 20.04 LTS | Direkomendasikan — paling stabil |
+| **Ubuntu** | 22.04 LTS | Didukung penuh |
+| **Ubuntu** | 24.04 LTS | Didukung penuh |
+| **Ubuntu** | 18.04 LTS | Dukungan terbatas |
+| **Debian** | 10 / 11 / 12 | Didukung penuh |
 
 </div>
 
 ---
 
-<div align="center">
+## Panduan Instalasi Lengkap
 
-## PANDUAN STEP-BY-STEP
+### 1. Perbarui dan Siapkan Server
 
-</div>
-
-### Langkah 1 — Update dan Persiapkan Server
-
-Login ke server sebagai **root**, lalu jalankan:
+Login sebagai **root**, lalu jalankan:
 
 ```bash
 apt-get update && apt-get upgrade -y && apt dist-upgrade -y && update-grub && reboot
 ```
 
-### Langkah 2 — Jalankan Installer Setelah Reboot
+### 2. Jalankan Installer
 
-Tunggu server kembali online, lalu jalankan satu perintah ini:
+Setelah server kembali online, jalankan:
 
 ```bash
 wget -O setup.sh https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/setupku.sh && chmod +x setup.sh && ./setup.sh
 ```
 
-### Langkah 3 — Ikuti Panduan di Layar
+### 3. Ikuti Panduan di Layar
 
-Script akan meminta:
-- **Domain atau subdomain** untuk sertifikat SSL
-- **Protokol** yang ingin diaktifkan
-- **Port** yang akan digunakan
+Installer akan meminta input berikut:
 
-### Langkah 4 — Akses Menu Utama
+- **Domain / subdomain** — untuk sertifikat SSL otomatis
+- **Protokol** — pilih protokol yang ingin diaktifkan
+- **Port** — sesuaikan dengan kebutuhan
 
-Setelah instalasi selesai, ketik perintah berikut untuk membuka menu pengelolaan:
+### 4. Akses Menu Utama
+
+Setelah instalasi selesai, buka menu pengelolaan dengan:
 
 ```bash
 menu
@@ -171,24 +172,20 @@ menu
 
 ---
 
-<div align="center">
+## Kontak & Support
 
-## KONTAK DAN SUPPORT
+<div align="center">
 
 <br/>
 
-[![Telegram](https://img.shields.io/badge/TELEGRAM-@dcxii-9B59B6?style=for-the-badge&logo=telegram&logoColor=white&labelColor=0D0D0D)](https://t.me/dcxii)
+[![Telegram](https://img.shields.io/badge/Telegram-@dcxii-9B59B6?style=for-the-badge&logo=telegram&logoColor=white&labelColor=0D0D0D)](https://t.me/dcxii)
 
 <br/><br/>
 
-<img src="https://readme-typing-svg.demolab.com?font=Share+Tech+Mono&size=13&duration=4000&pause=1000&color=6C3483&center=true&vCenter=true&width=540&lines=Script+by+DevCulture+XII+Store;Unauthorized+redistribution+is+prohibited.;Copyright+2024+DevCulture+XII+Store.+All+rights+reserved." alt="Footer" />
+<img src="https://readme-typing-svg.demolab.com?font=Share+Tech+Mono&size=12&duration=4000&pause=1000&color=5B2C6F&center=true&vCenter=true&width=560&lines=Script+by+DevCulture+XII+Store;Dilarang+mendistribusikan+ulang+tanpa+izin.;Copyright+2024+DevCulture+XII+Store.+All+rights+reserved." alt="Footer" />
 
-</div>
+<br/>
 
----
+<sub><code>[ SYSTEM ONLINE ]</code> &nbsp;·&nbsp; <code>[ ALL PROTOCOLS ACTIVE ]</code> &nbsp;·&nbsp; <code>[ ENCRYPTION ENABLED ]</code></sub>
 
-<div align="center">
-<sub>
-<code>[ SYSTEM ONLINE ]</code> &nbsp;|&nbsp; <code>[ ALL PROTOCOLS ACTIVE ]</code> &nbsp;|&nbsp; <code>[ ENCRYPTION: ENABLED ]</code>
-</sub>
 </div>
