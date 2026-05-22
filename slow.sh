@@ -10,10 +10,10 @@ service sshd restart
 echo "Install Slowdns"
 rm -rf /etc/slowdns
 mkdir -m 777 /etc/slowdns
-wget -q -O /etc/slowdns/server.key "https://raw.githubusercontent.com/fisabiliyusri/SLDNS/main/slowdns/server.key"
-wget -q -O /etc/slowdns/server.pub "https://raw.githubusercontent.com/fisabiliyusri/SLDNS/main/slowdns/server.pub"
-wget -q -O /etc/slowdns/sldns-server "https://raw.githubusercontent.com/fisabiliyusri/SLDNS/main/slowdns/sldns-server"
-wget -q -O /etc/slowdns/sldns-client "https://raw.githubusercontent.com/fisabiliyusri/SLDNS/main/slowdns/sldns-client"
+wget -q -O /etc/slowdns/server.key "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/insshws/server.key"
+wget -q -O /etc/slowdns/server.pub "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/insshws/server.pub"
+wget -q -O /etc/slowdns/sldns-server "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/insshws/sldns-server"
+wget -q -O /etc/slowdns/sldns-client "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/insshws/sldns-client"
 cd
 chmod +x /etc/slowdns/server.key
 chmod +x /etc/slowdns/server.pub
@@ -21,8 +21,8 @@ chmod +x /etc/slowdns/sldns-server
 chmod +x /etc/slowdns/sldns-client
 
 cd
-#wget -q -O /etc/systemd/system/client-sldns.service "https://raw.githubusercontent.com/fisabiliyusri/SLDNS/main/slowdns/client-sldns.service"
-#wget -q -O /etc/systemd/system/server-sldns.service "https://raw.githubusercontent.com/fisabiliyusri/SLDNS/main/slowdns/server-sldns.service"
+#wget -q -O /etc/systemd/system/client-sldns.service "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/insshws/client-sldns.service"
+#wget -q -O /etc/systemd/system/server-sldns.service "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/insshws/server-sldns.service"
 
 cd
 #install client-sldns.service

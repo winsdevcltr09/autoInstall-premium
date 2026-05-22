@@ -1,27 +1,35 @@
-## Tested only on Ubuntu 20.04<br>
-  
-  ```html
- apt-get update && apt-get upgrade -y && apt dist-upgrade -y && update-grub && reboot
- ```
-## Installation Link<br>
+# DevCulture XII Store - Autoscript VPN Premium
 
-  ```html
-wa.me/+6285225171738
-  ```
-## Fitur:
-<br>
-✅ SSH WEBSOCKET TLS & NON-TLS 443/80 MULTIPATH<br>
-✅ SSH SLOW DNS  MULTIPATH<br>
-✅ SSH UDP  MULTIPATH<br>
-✅ XRAY VMESS WEBSOCKET TLS & NON-TLS 443/80 MULTIPATH<br>
-✅ XRAY VLESS WEBSOCKET TLS & NON-TLS 443/80<br>
-✅ XRAY TROJAN WEBSOCKET TLS & NON-TLS 443/80<br>
-✅ XRAY TROJAN TCP XTLS 443<br>
-✅ XRAY TROJAN TCP TLS 443<br>
-<br>
-Registrasi IP 
-:<a href="https://t.me/" target=”_blank”><img src="https://img.shields.io/static/v1?style=for-the-badge&logo=Telegram&label=Telegram&message=Click%20Here&color=blue"></a><br>
+Script autoinstall VPN server premium untuk Ubuntu 20.04
 
-## SS
+## Tested on Ubuntu 20.04
 
-![Screenshot_20230404-154004_Termius](https://user-images.githubusercontent.com/86614702/229739373-d5c7f4a0-996b-4225-aeb5-b814e30ddaa7.jpg)
+```bash
+apt-get update && apt-get upgrade -y && apt dist-upgrade -y && update-grub && reboot
+```
+
+## Instalasi
+
+```bash
+wget -O setup.sh https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/setupku.sh && chmod +x setup.sh && ./setup.sh
+```
+
+## Fitur
+
+- SSH WEBSOCKET TLS & NON-TLS 443/80 MULTIPATH
+- SSH SLOW DNS MULTIPATH
+- SSH UDP MULTIPATH
+- XRAY VMESS WEBSOCKET TLS & NON-TLS 443/80 MULTIPATH
+- XRAY VLESS WEBSOCKET TLS & NON-TLS 443/80
+- XRAY TROJAN WEBSOCKET TLS & NON-TLS 443/80
+- XRAY TROJAN TCP XTLS 443
+- XRAY TROJAN TCP TLS 443
+- Shadowsocks WS/GRPC
+
+## Kontak
+
+- Telegram: t.me/dcxii
+
+## Credit
+
+Script by **DevCulture XII Store**

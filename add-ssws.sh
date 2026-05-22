@@ -49,12 +49,12 @@ export WARNING="${RED}\e[5m"
 export UNDERLINE="\e[4m"
 
 # // Exporting URL Host
-export Server_URL="raw.githubusercontent.com/wunuit/test/main"
-export Server1_URL="raw.githubusercontent.com/wunuit/limit/main"
+export Server_URL="raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main"
+export Server1_URL="raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main"
 export Server_Port="443"
 export Server_IP="underfined"
 export Script_Mode="Stable"
-export Auther=".geovpn"
+export Auther=".dcxii"
 
 # // Root Checking
 if [ "${EUID}" -ne 0 ]; then

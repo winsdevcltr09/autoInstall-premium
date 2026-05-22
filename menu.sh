@@ -43,15 +43,15 @@ export WARNING="${RED}\e[5m"
 export UNDERLINE="\e[4m"
 
 # // Exporting URL Host
-export Server_URL="raw.githubusercontent.com/Zeastore/test/main"
-export Server1_URL="raw.githubusercontent.com/Zeastore/limit/main"
+export Server_URL="raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main"
+export Server1_URL="raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main"
 export Server_Port="443"
 export Server_IP="underfined"
 export Script_Mode="Stable"
-export Auther=".geovpn"
+export Auther=".dcxii"
 export MYIP=$( curl -s https://ipinfo.io/ip/ )
-Name=$(curl -sS https://raw.githubusercontent.com/kanghory/Autoscript-vpn-V1/main/izin | grep $MYIP | awk '{print $2}')
-Exp=$(curl -sS https://raw.githubusercontent.com/kanghory/Autoscript-vpn-V1/main/izin | grep $MYIP | awk '{print $3}')
+Name=$(curl -sS https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/izin | grep $MYIP | awk '{print $2}')
+Exp=$(curl -sS https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/izin | grep $MYIP | awk '{print $3}')
 
 # // Root Checking
 if [ "${EUID}" -ne 0 ]; then
@@ -149,7 +149,7 @@ ttoday="$(vnstat | grep today | awk '{print $8" "substr ($9, 1, 3)}' | head -1)"
 tmon="$(vnstat -m | grep `date +%G-%m` | awk '{print $8" "substr ($9, 1 ,3)}' | head -1)"
 clear
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m${NC}"
-echo -e "\E[39;1;92m                   ⇱ SCRIPT PREMIUM BY KANG HORY⇲             \E[0m"
+echo -e "\E[39;1;92m                   ⇱ SCRIPT PREMIUM BY DEVCULTURE XII STORE⇲             \E[0m"
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m${NC}"
 echo -e "${BICyan} "                                                                      
 echo -e "${BICyan} ⇲  ${BICyan}Use Core        :  ${BIYellow}Xray-core"    
@@ -188,7 +188,7 @@ echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━�
 echo -e "${BICyan}┌──────────────────────────────────────────────────┐${NC}"
 echo -e "${BICyan}│ ${BOLD}${LIGHT}Client    = $Name                           ${NC}"
 echo -e "${BICyan}│ ${BOLD}${LIGHT}Expired   = $Exp                            ${NC}"
-echo -e "${BICyan}│ ${BOLD}${LIGHT}Developer = Kang Hory V1                       ${NC}"
+echo -e "${BICyan}│ ${BOLD}${LIGHT}Developer = DevCulture XII Store V1                       ${NC}"
 echo -e "${BICyan}│ ${BOLD}${LIGHT}Version   = 3.0.0 LTS                       ${NC}"
 echo -e "${BICyan}└──────────────────────────────────────────────────┘${NC}"
 

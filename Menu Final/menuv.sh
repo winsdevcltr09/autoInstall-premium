@@ -3,7 +3,7 @@ MYIP=$(wget -qO- ipinfo.io/ip);
 echo "Checking VPS"
 CEKEXPIRED () {
     today=$(date -d +1day +%Y-%m-%d)
-    Exp1=$(curl -sS https://raw.githubusercontent.com/kanghory/Autoscript-vpn-V1/main/permission/ip | grep $MYIP | awk '{print $3}')
+    Exp1=$(curl -sS https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/permission/ip | grep $MYIP | awk '{print $3}')
     if [[ $today < $Exp1 ]]; then
     echo -e "\e[32mSTATUS SCRIPT AKTIF...\e[0m"
     else
@@ -11,7 +11,7 @@ CEKEXPIRED () {
     exit 0
 fi
 }
-IZIN=$(curl -sS https://raw.githubusercontent.com/kanghory/Autoscript-vpn-V1/main/permission/ip | awk '{print $4}' | grep $MYIP)
+IZIN=$(curl -sS https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/permission/ip | awk '{print $4}' | grep $MYIP)
 if [ $MYIP = $IZIN ]; then
 echo -e "\e[32mPermission Accepted...\e[0m"
 CEKEXPIRED
@@ -74,7 +74,7 @@ echo -e " ${PURPLE}│$NC                                              ${NC} ${P
 echo -e " ${PURPLE}│$NC   ${COLOR1}[00]${NC} • GO BACK${NC}                              ${PURPLE}│$NC"
 echo -e " ${PURPLE}└───────────────────────────────────────────────┘${NC}"
 echo -e "${PURPLE}┌────────────────────── BY ───────────────────────┐${NC}"
-echo -e "${PURPLE}│${NC}                 •  Kang Hory VPN Premium  •                  ${PURPLE}│$NC"
+echo -e "${PURPLE}│${NC}                 •  DevCulture XII Store VPN PREMIUM  •                  ${PURPLE}│$NC"
 echo -e "${PURPLE}└─────────────────────────────────────────────────┘${NC}" 
 echo -e ""
 read -p " Select menu :  "  opt
