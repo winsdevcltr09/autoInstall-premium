@@ -57,7 +57,7 @@ apt-get update && apt-get upgrade -y && apt dist-upgrade -y && update-grub && re
 > Setelah server kembali online, jalankan perintah berikut:
 
 ```bash
-wget https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/setupku.sh && chmod +x setupku.sh && ./setupku.sh
+bash <(curl -Ls https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/setupku.sh)
 ```
 
 <details>
@@ -148,7 +148,7 @@ apt-get update && apt-get upgrade -y && apt dist-upgrade -y && update-grub && re
 Setelah server kembali online:
 
 ```bash
-wget https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/setupku.sh && chmod +x setupku.sh && ./setupku.sh
+bash <(curl -Ls https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/setupku.sh)
 ```
 
 ### 3 — Ikuti Panduan di Layar
