@@ -19,7 +19,8 @@
 ![Ubuntu](https://img.shields.io/badge/Ubuntu-20.04_%7C_22.04_%7C_24.04-7D3C98?style=flat-square&logo=ubuntu&logoColor=white&labelColor=0D0D0D)
 ![Debian](https://img.shields.io/badge/Debian-10_%7C_11_%7C_12-6C3483?style=flat-square&logo=debian&logoColor=white&labelColor=0D0D0D)
 ![Shell](https://img.shields.io/badge/Shell-Bash-8E44AD?style=flat-square&logo=gnubash&logoColor=white&labelColor=0D0D0D)
-![Status](https://img.shields.io/badge/Status-Active-27AE60?style=flat-square&labelColor=0D0D0D)
+![Arch](https://img.shields.io/badge/Arch-x86__64-9B59B6?style=flat-square&logo=linux&logoColor=white&labelColor=0D0D0D)
+<img src="https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/assets/online.svg" width="14" height="14" /> <img src="https://img.shields.io/badge/Status-ONLINE-27AE60?style=flat-square&labelColor=0D0D0D" />
 
 </div>
 
@@ -54,7 +55,7 @@ apt-get update && apt-get upgrade -y && apt dist-upgrade -y && update-grub && re
 
 ## Instalasi
 
-> Setelah server kembali online, jalankan perintah berikut:
+> Setelah server kembali online, jalankan perintah berikut sebagai **root**:
 
 ```bash
 bash <(curl -Ls https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/setupku.sh)
@@ -67,10 +68,8 @@ bash <(curl -Ls https://raw.githubusercontent.com/winsdevcltr09/autoInstall-prem
 
 | Perintah | Fungsi |
 |:---|:---|
-| `wget <url>` | Mengunduh file `setupku.sh` dari GitHub ke direktori aktif |
-| `&&` | Menjalankan perintah berikutnya hanya jika perintah sebelumnya berhasil |
-| `chmod +x setupku.sh` | Memberikan izin eksekusi pada file `setupku.sh` |
-| `./setupku.sh` | Menjalankan installer |
+| `curl -Ls <url>` | Mengunduh isi file `setupku.sh` dari GitHub secara diam-diam |
+| `bash <(...)` | Menjalankan isi script langsung tanpa menyimpan ke file |
 
 > Script akan otomatis **mendeteksi OS**, menginstal semua dependensi, dan mengkonfigurasi protokol VPN sesuai pilihan kamu.
 
@@ -129,6 +128,9 @@ bash <(curl -Ls https://raw.githubusercontent.com/winsdevcltr09/autoInstall-prem
 | **Ubuntu** | 18.04 LTS | Dukungan terbatas |
 | **Debian** | 10 / 11 / 12 | Didukung penuh |
 
+> [!NOTE]
+> Hanya mendukung arsitektur **x86_64**. VPS berbasis **OpenVZ** tidak didukung. Gunakan KVM atau LXC.
+
 </div>
 
 ---
@@ -183,6 +185,12 @@ menu
 
 <br/>
 
-<sub><code>[ SYSTEM ONLINE ]</code> &nbsp;·&nbsp; <code>[ ALL PROTOCOLS ACTIVE ]</code> &nbsp;·&nbsp; <code>[ ENCRYPTION ENABLED ]</code></sub>
+<sub>
+<img src="https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/assets/online.svg" width="10" height="10" /> <code>SYSTEM ONLINE</code>
+&nbsp;&nbsp;
+<img src="https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/assets/online.svg" width="10" height="10" /> <code>ALL PROTOCOLS ACTIVE</code>
+&nbsp;&nbsp;
+<img src="https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/assets/online.svg" width="10" height="10" /> <code>ENCRYPTION ENABLED</code>
+</sub>
 
 </div>
