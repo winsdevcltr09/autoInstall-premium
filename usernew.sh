@@ -30,16 +30,16 @@ export ungu='\033[0;35m'
 IP_VPS=$(curl -s https://ipinfo.io/ip/)
 IZIN_RAW=$(curl -sS --max-time 15 https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/izin 2>/dev/null)
 if [[ -n "$IZIN_RAW" ]]; then
-    IZIN_IP=$(echo "$IZIN_RAW" | awk "{print \}" | grep -w "$IP_VPS")
+    IZIN_IP=$(echo "$IZIN_RAW" | awk '{print $3}' | grep -w "$IP_VPS")
     if [[ -z "$IZIN_IP" ]]; then
         echo -e "\e[31mPermission Denied! IP VPS tidak terdaftar.\e[0m"; exit 0
     fi
-    EXP_DATE=$(echo "$IZIN_RAW" | grep -w "$IP_VPS" | awk "{print \}")
+    EXP_DATE=$(echo "$IZIN_RAW" | grep -w "$IP_VPS" | awk '{print $2}')
     TODAY=$(date +%Y-%m-%d)
     if [[ "$TODAY" > "$EXP_DATE" ]]; then
         echo -e "\e[31mLisensi EXPIRED sejak $EXP_DATE!\e[0m"; exit 0
     fi
-    CLIENT_NAME=$(echo "$IZIN_RAW" | grep -w "$IP_VPS" | awk "{print \}")
+    CLIENT_NAME=$(echo "$IZIN_RAW" | grep -w "$IP_VPS" | awk '{print $1}')
     echo -e "\e[32mSelamat datang ${CLIENT_NAME}! Lisensi aktif s/d $EXP_DATE.\e[0m"
 fi
 # // ─────────────────────────────────────────────────
