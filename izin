@@ -1,6 +1,5 @@
 # Format: username expiry-date IP limit
 # Tambah IP VPS Anda di sini
 # Contoh: namauser 2029-12-31 1.2.3.4 3
-TesListen 2026-05-27 192.32.648.1 1
 XbitTes 2026-05-27 183.346.7.67 3
 tesnet 2026-06-16 192.86.7.4 3
