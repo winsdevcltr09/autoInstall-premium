@@ -1,0 +1,41 @@
+name: Deploy Panel ke GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install pnpm
+        run: npm install -g pnpm@9
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        env:
+          PORT: "3000"
+          BASE_PATH: "/autoInstall-premium/"
+          VITE_GITHUB_REPO: "winsdevcltr09/autoInstall-premium"
+          VITE_ADMIN_PASSWORD_HASH: "a0b17523db10951d5d3b7278a1b07f379543ac4cc4637776028dcaac3048bd59"
+        run: pnpm run build
+
+      - name: Deploy ke gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist/public
