@@ -152,29 +152,30 @@ check_izin() {
         return 0
     fi
 
-    local IZIN_IP
-    IZIN_IP=$(echo "$IZIN_DATA" | grep -v "^#" | awk '{print $3}' | grep -w "$MYIP")
+    # Format file izin: username expiry-date IP limit
+    # Kolom: $1=username, $2=expiry-date, $3=IP, $4=limit
+    local IZIN_LINE
+    IZIN_LINE=$(echo "$IZIN_DATA" | grep -v "^#" | grep -v "^$" | awk -v ip="$MYIP" '$3 == ip {print; exit}')
 
-    if [[ -z "$IZIN_IP" ]]; then
-        echo -e "${ERR} IP ${RED}${MYIP}${NC} tidak terdaftar!"
+    if [[ -z "$IZIN_LINE" ]]; then
+        echo -e "${ERR} IP ${RED}${MYIP}${NC} tidak terdaftar di whitelist!"
         echo -e "     Hubungi admin untuk mendaftarkan IP VPS Anda."
         echo -e "     ${CYAN}Telegram: t.me/dcxii${NC}"
         exit 1
     fi
 
-    local EXP_DATE
-    EXP_DATE=$(echo "$IZIN_DATA" | grep -w "$MYIP" | awk '{print $2}')
-    local TODAY
+    local CLIENT_NAME EXP_DATE TODAY
+    CLIENT_NAME=$(echo "$IZIN_LINE" | awk '{print $1}')
+    EXP_DATE=$(echo "$IZIN_LINE" | awk '{print $2}')
     TODAY=$(date +%Y-%m-%d)
 
+    # Perbandingan tanggal: string ISO 8601 bisa dibandingkan langsung secara lexicographic
     if [[ "$TODAY" > "$EXP_DATE" ]]; then
         echo -e "${ERR} Lisensi untuk IP ${RED}${MYIP}${NC} sudah EXPIRED pada ${EXP_DATE}!"
         echo -e "     Perpanjang lisensi: ${CYAN}t.me/dcxii${NC}"
         exit 1
     fi
 
-    local CLIENT_NAME
-    CLIENT_NAME=$(echo "$IZIN_DATA" | grep -w "$MYIP" | awk '{print $1}')
     echo -e "${OK} Izin diterima — Client: ${GREEN}${CLIENT_NAME}${NC} | Exp: ${GREEN}${EXP_DATE}${NC}"
     log "Izin: ${CLIENT_NAME} | Exp: ${EXP_DATE}"
 }
