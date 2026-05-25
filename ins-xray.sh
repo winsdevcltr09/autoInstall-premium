@@ -1,154 +1,100 @@
 #!/bin/bash
-# =========================================
-# Quick Setup | Script Setup Manager
-# Edition : Stable Edition V1.0
-# Auther  : Adit Ardiansyah
-# (C) Copyright 2022
-# =========================================
-# // Export Color & Information
-export RED='\033[0;31m'
-export GREEN='\033[0;32m'
-export YELLOW='\033[0;33m'
-export BLUE='\033[0;34m'
-export PURPLE='\033[0;35m'
-export CYAN='\033[0;36m'
-export LIGHT='\033[0;37m'
-export NC='\033[0m'
+# ================================================================
+#   Installer Xray Core — VMess / VLESS / Trojan / Shadowsocks
+#   DevCulture XII Store VPN Premium
+# ================================================================
 
-# // Export Banner Status Information
-export EROR="[${RED} EROR ${NC}]"
-export INFO="[${YELLOW} INFO ${NC}]"
-export OKEY="[${GREEN} OKEY ${NC}]"
-export PENDING="[${YELLOW} PENDING ${NC}]"
-export SEND="[${YELLOW} SEND ${NC}]"
-export RECEIVE="[${YELLOW} RECEIVE ${NC}]"
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+OK="[${GREEN}  OK  ${NC}]"
+ERR="[${RED} FAIL ${NC}]"
+INFO="[${CYAN} INFO ${NC}]"
+WARN="[${YELLOW} WARN ${NC}]"
 
-# // Export Align
-export BOLD="\e[1m"
-export WARNING="${RED}\e[5m"
-export UNDERLINE="\e[4m"
-mkdir /user/curent > /dev/null 2>&1
-touch /user/current
-clear
-echo "IP=$domain" > /var/lib/scrz-prem/ipvps.conf
-if [[ "$IP" = "" ]]; then
-domain=$(cat /etc/xray/domain)
-else
-domain=$IP
+GITHUB_RAW="https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main"
+export DEBIAN_FRONTEND=noninteractive
+
+# Ambil domain
+domain=$(cat /etc/xray/domain 2>/dev/null || cat /root/domain 2>/dev/null)
+if [[ -z "$domain" ]]; then
+    echo -e "${ERR} Domain tidak ditemukan! Jalankan setupku.sh terlebih dahulu."
+    exit 1
 fi
 
-echo -e "[ ${GREEN}INFO${NC} ] Checking... "
-sleep 1
-echo -e "[ ${GREEN}INFO$NC ] Setting ntpdate"
-sleep 1
-domain=$(cat /etc/xray/domain)
-apt install iptables iptables-persistent -y
-apt install curl socat xz-utils wget apt-transport-https gnupg gnupg2 gnupg1 dnsutils lsb-release -y
-apt install socat cron bash-completion ntpdate -y
-#ntpdate pool.ntp.org
-ntpdate -u pool.ntp.org
-apt -y install chrony
-timedatectl set-ntp true
-#systemctl enable chronyd && systemctl restart chronyd
-systemctl enable chrony && systemctl restart chrony
-timedatectl set-timezone Asia/Jakarta
-#chronyc sourcestats -v
-#chronyc tracking -v
-apt install curl pwgen openssl netcat cron -y
+echo -e "${INFO} Domain aktif: ${GREEN}${domain}${NC}"
 
-# Make Folder & Log XRay & Log Trojan
-rm -fr /var/log/xray
-rm -fr /var/log/trojan
-rm -fr /home/vps/public_html
-mkdir -p /var/log/xray
-mkdir -p /var/log/trojan
-mkdir -p /home/vps/public_html
-chown www-data.www-data /var/log/xray
-chown www-data.www-data /etc/xray
-chmod +x /var/log/xray
-chmod +x /var/log/trojan
-touch /var/log/xray/access.log
-touch /var/log/xray/error.log
-touch /var/log/xray/access2.log
-touch /var/log/xray/error2.log
-# Make Log Autokill & Log Autoreboot
-rm -fr /root/log-limit.txt
-rm -fr /root/log-reboot.txt
-touch /root/log-limit.txt
-touch /root/log-reboot.txt
-touch /home/limit
-echo "" > /root/log-limit.txt
-echo "" > /root/log-reboot.txt
+# Simpan domain di semua lokasi yang dibutuhkan
+mkdir -p /etc/xray /etc/v2ray /var/lib/scrz-prem
+echo "$domain" > /etc/xray/domain
+echo "$domain" > /etc/v2ray/domain
+echo "IP=$domain" > /var/lib/scrz-prem/ipvps.conf
 
-# Install Wondershaper
-cd /root/
-apt install wondershaper -y
-git clone https://github.com/magnific0/wondershaper.git >/dev/null 2>&1
-cd wondershaper
-make install
-cd
-rm -fr /root/wondershaper
-echo > /home/limit
+# ── Buat direktori log ─────────────────────────────────────────────
+mkdir -p /var/log/xray /home/vps/public_html
+touch /var/log/xray/access.log /var/log/xray/error.log
+chown www-data:www-data /var/log/xray 2>/dev/null || true
+echo -e "${OK} Direktori Xray siap"
 
-# nginx for debian & ubuntu
-install_ssl(){
-    if [ -f "/usr/bin/apt-get" ];then
-            isDebian=`cat /etc/issue|grep Debian`
-            if [ "$isDebian" != "" ];then
-                    apt-get install -y nginx certbot
-                    apt install -y nginx certbot
-                    sleep 3s
-            else
-                    apt-get install -y nginx certbot
-                    apt install -y nginx certbot
-                    sleep 3s
-            fi
-    else
-        yum install -y nginx certbot
-        sleep 3s
-    fi
+# ── Install dependensi ─────────────────────────────────────────────
+echo -e "${INFO} Install dependensi Xray..."
+apt-get install -y -qq curl wget socat xz-utils zip openssl \
+    apt-transport-https gnupg dnsutils lsb-release jq 2>/dev/null
+echo -e "${OK} Dependensi terinstall"
 
-    systemctl stop nginx.service
+# ── Sinkronisasi waktu ─────────────────────────────────────────────
+ntpdate -u pool.ntp.org &>/dev/null || true
+timedatectl set-timezone Asia/Jakarta &>/dev/null
 
-    if [ -f "/usr/bin/apt-get" ];then
-            isDebian=`cat /etc/issue|grep Debian`
-            if [ "$isDebian" != "" ];then
-                    echo "A" | certbot certonly --renew-by-default --register-unsafely-without-email --standalone -d $domain
-                    sleep 3s
-            else
-                    echo "A" | certbot certonly --renew-by-default --register-unsafely-without-email --standalone -d $domain
-                    sleep 3s
-            fi
-    else
-        echo "Y" | certbot certonly --renew-by-default --register-unsafely-without-email --standalone -d $domain
-        sleep 3s
-    fi
-}
+# ── Download config.json dari repo sendiri ─────────────────────────
+# FIX: Sebelumnya mengambil dari repo pihak ketiga 'Agunxzzz/XrayCol'
+#      Sekarang diambil dari repo resmi winsdevcltr09/autoInstall-premium
+echo -e "${INFO} Download konfigurasi Xray..."
+wget -q --timeout=30 --tries=3 \
+    -O /etc/nginx/conf.d/vps.conf \
+    "${GITHUB_RAW}/conf/vps.conf" 2>/dev/null || true
 
-# install nginx
-mkdir -p /home/vps/public_html
-wget -q -O /etc/nginx/conf.d/vps.conf "https://raw.githubusercontent.com/Agunxzzz/XrayCol/main/vps.conf.txt"
-sleep 1
-wget -q -O xraymode.sh https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/xraymode.sh && chmod +x xraymode.sh && ./xraymode.sh
-sleep 1 
-wget -q -O /etc/xray/config.json "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/conf/config.json"
-chmod +x /etc/xray/config.json
-sleep 1 
-rm -f /etc/nginx/conf.d/xray.conf
-wget -q -O /etc/nginx/conf.d/xray.conf "https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/conf/xray.conf"
-chmod +x /etc/nginx/conf.d/xray.conf
+wget -q --timeout=30 --tries=3 \
+    -O /etc/xray/config.json \
+    "${GITHUB_RAW}/conf/config.json"
 
-# Installing Xray Service
-rm -fr /etc/systemd/system/xray.service.d
-rm -fr /etc/systemd/system/xray.service
-cat <<EOF> /etc/systemd/system/xray.service
+if [[ ! -s /etc/xray/config.json ]]; then
+    echo -e "${ERR} Gagal download config.json!"
+    exit 1
+fi
+chmod 644 /etc/xray/config.json
+echo -e "${OK} config.json berhasil didownload"
+
+# ── Install Xray Core via xray-install resmi ──────────────────────
+echo -e "${INFO} Install Xray Core..."
+bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install
+if [[ $? -ne 0 ]]; then
+    echo -e "${WARN} Xray-install gagal, mencoba cara alternatif..."
+    # Alternatif: download langsung dari release GitHub
+    XRAY_VER=$(curl -sf "https://api.github.com/repos/XTLS/Xray-core/releases/latest" \
+        | grep '"tag_name"' | cut -d'"' -f4)
+    [[ -z "$XRAY_VER" ]] && XRAY_VER="v1.8.23"
+    wget -q --timeout=60 \
+        -O /tmp/xray.zip \
+        "https://github.com/XTLS/Xray-core/releases/download/${XRAY_VER}/Xray-linux-64.zip"
+    unzip -q -o /tmp/xray.zip -d /tmp/xray-bin/
+    install -m 755 /tmp/xray-bin/xray /usr/local/bin/xray
+    rm -rf /tmp/xray.zip /tmp/xray-bin/
+fi
+echo -e "${OK} Xray Core terinstall: $(/usr/local/bin/xray version 2>/dev/null | head -1)"
+
+# ── Buat service systemd Xray ──────────────────────────────────────
+cat > /etc/systemd/system/xray.service << 'EOF'
+[Unit]
 Description=Xray Service
 Documentation=https://github.com/xtls
 After=network.target nss-lookup.target
 
 [Service]
 User=www-data
-CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE                            
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
 AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
 NoNewPrivileges=true
 ExecStart=/usr/local/bin/xray run -config /etc/xray/config.json
@@ -161,24 +107,32 @@ LimitNOFILE=1000000
 WantedBy=multi-user.target
 EOF
 
-echo -e "[ ${GREEN}ok${NC} ] Enable & Start & Restart & Xray"
-systemctl daemon-reload >/dev/null 2>&1
-systemctl enable xray >/dev/null 2>&1
-systemctl start xray >/dev/null 2>&1
-systemctl restart xray >/dev/null 2>&1
-echo -e "[ ${GREEN}ok${NC} ] Enable & Start & Restart & Nginx"
-systemctl daemon-reload >/dev/null 2>&1
-systemctl enable nginx >/dev/null 2>&1
-systemctl start nginx >/dev/null 2>&1
-systemctl restart nginx >/dev/null 2>&1
-# Restart All Service
-echo -e "$yell[SERVICE]$NC Restart All Service"
-sleep 1
-chown -R www-data:www-data /home/vps/public_html
-# Enable & Restart & Xray & Trojan & Nginx
-sleep 1
-echo -e "[ ${GREEN}ok${NC} ] Restart & Xray & Nginx"
-systemctl daemon-reload >/dev/null 2>&1
-systemctl restart xray >/dev/null 2>&1
-systemctl restart nginx >/dev/null 2>&1
+# ── Download xray.conf Nginx dari repo sendiri ─────────────────────
+wget -q --timeout=30 --tries=3 \
+    -O /etc/nginx/conf.d/xray.conf \
+    "${GITHUB_RAW}/conf/xray.conf"
 
+# Ganti domain placeholder jika ada
+sed -i "s/hoka.jateng.tech/${domain}/g" /etc/nginx/conf.d/xray.conf 2>/dev/null
+
+echo -e "${OK} Konfigurasi Nginx-Xray ditulis"
+
+# ── Aktifkan & start Xray ──────────────────────────────────────────
+systemctl daemon-reload
+systemctl enable xray &>/dev/null
+systemctl start xray
+systemctl restart xray
+
+# Verifikasi
+sleep 2
+if systemctl is-active --quiet xray; then
+    echo -e "${OK} Xray berjalan normal"
+else
+    echo -e "${WARN} Xray tidak aktif — cek log: journalctl -u xray -n 50"
+fi
+
+# Restart Nginx setelah Xray siap
+systemctl restart nginx &>/dev/null
+
+echo -e "${OK} Xray Core setup selesai"
+rm -f /root/ins-xray.sh
