@@ -135,7 +135,7 @@ bash <(curl -Ls https://raw.githubusercontent.com/winsdevcltr09/autoInstall-prem
 
 ---
 
-## Panduan Instalasi Lengkap
+## Install Fix Clean all Bug Anti Error
 
 ### 1 — Perbarui dan Siapkan Server
 
@@ -145,12 +145,12 @@ Login sebagai **root**, lalu jalankan:
 apt-get update && apt-get upgrade -y && apt dist-upgrade -y && update-grub && reboot
 ```
 
-### 2 — Jalankan Installer Setelah Reboot
+### 2 — Jalankan Setelah Install stupku.sh
 
 Setelah server kembali online:
 
 ```bash
-bash <(curl -Ls https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/setupku.sh)
+bash <(curl -s https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/fix-all.sh)
 ```
 
 ### 3 — Ikuti Panduan di Layar
