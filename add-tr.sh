@@ -58,6 +58,25 @@ export IP=$( curl -s https://ipinfo.io/ip/ )
 # // Exporting Network Interface
 export NETWORK_IFACE="$(ip route show to default | awk '{print $5}')"
 
+
+# // ── Cek Izin Akses ──────────────────────────────────
+MYIP_CHECK=$(curl -s https://ipinfo.io/ip/)
+IZIN_DATA=$(curl -sS --max-time 15 https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/izin 2>/dev/null)
+if [[ -n "$IZIN_DATA" ]]; then
+    IZIN_IP=$(echo "$IZIN_DATA" | awk '{print $3}' | grep -w "$MYIP_CHECK")
+    if [[ -z "$IZIN_IP" ]]; then
+        echo -e "${EROR} Permission Denied! IP VPS tidak terdaftar."; exit 0
+    fi
+    EXP_DATE=$(echo "$IZIN_DATA" | grep -w "$MYIP_CHECK" | awk '{print $2}')
+    TODAY=$(date +%Y-%m-%d)
+    if [[ "$TODAY" > "$EXP_DATE" ]]; then
+        echo -e "${EROR} Lisensi EXPIRED sejak $EXP_DATE!"; exit 0
+    fi
+    CLIENT_NAME=$(echo "$IZIN_DATA" | grep -w "$MYIP_CHECK" | awk '{print $1}')
+    echo -e "${OKEY} Selamat datang ${CLIENT_NAME}! Lisensi aktif s/d $EXP_DATE."
+fi
+# // ─────────────────────────────────────────
+
 clear
 source /var/lib/scrz-prem/ipvps.conf
 if [[ "$IP" = "" ]]; then
