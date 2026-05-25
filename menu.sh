@@ -18,6 +18,11 @@ IPurple='\033[0;95m'      # Purple
 ICyan='\033[0;96m'        # Cyan
 IWhite='\033[0;97m'       # White
 NC='\e[0m'
+# Alias pendek untuk kompatibilitas script lama
+green='\033[0;32m'
+red='\033[0;31m'
+yell='\033[1;33m'
+
 
 # // Export Color & Information
 export RED='\033[0;31m'
