@@ -27,6 +27,8 @@ STEP="[${MAGENTA} STEP ${NC}]"
 GITHUB_RAW="https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main"
 LOG_FILE="/root/log-install.txt"
 ERRORS=0
+SKIP_PREFLIGHT=false
+PREFLIGHT_DOMAIN=""
 
 # ── Helper: log to file ───────────────────────────────────────────
 log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"; }
@@ -474,12 +476,141 @@ show_summary() {
     fi
 }
 
+# ── Parse CLI Arguments ───────────────────────────────────────────
+parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --skip-preflight)
+                SKIP_PREFLIGHT=true
+                shift
+                ;;
+            --domain)
+                PREFLIGHT_DOMAIN="$2"
+                shift 2
+                ;;
+            --domain=*)
+                PREFLIGHT_DOMAIN="${1#--domain=}"
+                shift
+                ;;
+            *)
+                shift
+                ;;
+        esac
+    done
+}
+
+# ── Run Preflight Validation ──────────────────────────────────────
+run_preflight() {
+    if $SKIP_PREFLIGHT; then
+        # Tampilkan warning besar saat bypass
+        echo ""
+        echo -e "${RED}${BOLD}════════════════════════════════════════════════════════════${NC}"
+        echo -e "${RED}${BOLD}⚠  PREFLIGHT VALIDATION DILEWATI${NC}"
+        echo -e "${RED}${BOLD}════════════════════════════════════════════════════════════${NC}"
+        echo -e "${YELLOW}"
+        echo -e "  Mode ini TIDAK DIREKOMENDASIKAN untuk production VPS."
+        echo -e ""
+        echo -e "  Risiko:"
+        echo -e "  • Installer bisa gagal di tengah jalan"
+        echo -e "  • System config bisa korup jika dependency kurang"
+        echo -e "  • Domain belum pointing bisa menyebabkan SSL gagal"
+        echo -e "  • Port conflict bisa bikin service tidak bisa start"
+        echo -e ""
+        echo -e "  Gunakan --skip-preflight HANYA jika:"
+        echo -e "  ✓ Anda sudah yakin environment VPS bersih"
+        echo -e "  ✓ Debug/test ulang setelah preflight dijalankan manual"
+        echo -e "  ✓ Anda memahami konsekuensinya"
+        echo -e ""
+        echo -e "  Untuk jalankan preflight manual:"
+        echo -e "  ${WHITE}  bash preflight.sh --domain yourdomain.com${NC}"
+        echo -e "${YELLOW}"
+        echo -e "${RED}${BOLD}════════════════════════════════════════════════════════════${NC}"
+        echo -e "${NC}"
+        sleep 4
+        return 0
+    fi
+
+    echo -e "${INFO} Menjalankan preflight validation..."
+    echo -e "${INFO} Ini memastikan VPS siap sebelum ada perubahan sistem."
+    echo ""
+
+    local PREFLIGHT_SCRIPT=""
+    local PREFLIGHT_ARGS=(--called-by-setupku)
+    [[ -n "$PREFLIGHT_DOMAIN" ]] && PREFLIGHT_ARGS+=(--domain "$PREFLIGHT_DOMAIN")
+
+    # Cari preflight.sh: lokal dulu, fallback download dari GitHub
+    local SCRIPT_DIR
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd 2>/dev/null || echo /root)"
+    if [[ -f "${SCRIPT_DIR}/preflight.sh" && -x "${SCRIPT_DIR}/preflight.sh" ]]; then
+        PREFLIGHT_SCRIPT="${SCRIPT_DIR}/preflight.sh"
+        echo -e "${INFO} preflight.sh ditemukan lokal: ${GREEN}${PREFLIGHT_SCRIPT}${NC}"
+    elif [[ -f "/tmp/preflight.sh" && -x "/tmp/preflight.sh" ]]; then
+        PREFLIGHT_SCRIPT="/tmp/preflight.sh"
+    else
+        echo -e "${INFO} Download preflight.sh dari GitHub..."
+        if wget -q --timeout=30 --tries=3 \
+               -O "/tmp/preflight.sh" \
+               "${GITHUB_RAW}/preflight.sh" 2>/dev/null \
+           && [[ -s "/tmp/preflight.sh" ]] \
+           && ! grep -q "404: Not Found" "/tmp/preflight.sh" 2>/dev/null; then
+            chmod +x "/tmp/preflight.sh"
+            PREFLIGHT_SCRIPT="/tmp/preflight.sh"
+            echo -e "${OK} preflight.sh berhasil didownload"
+        else
+            echo -e "${WARN} Tidak bisa download preflight.sh — install dilanjutkan tanpa validasi"
+            log "WARN: preflight.sh tidak bisa didownload"
+            return 0
+        fi
+    fi
+
+    # Jalankan preflight
+    bash "$PREFLIGHT_SCRIPT" "${PREFLIGHT_ARGS[@]}"
+    local PREFLIGHT_EXIT=$?
+
+    case $PREFLIGHT_EXIT in
+        0)
+            echo -e "${OK} Preflight lulus — melanjutkan instalasi..."
+            log "Preflight: PASS (exit=0)"
+            ;;
+        2)
+            echo -e "${WARN} Preflight selesai dengan warning — melanjutkan instalasi..."
+            log "Preflight: WARN (exit=2)"
+            sleep 2
+            ;;
+        1)
+            echo ""
+            echo -e "${RED}${BOLD}════════════════════════════════════════════════════════════${NC}"
+            echo -e "${RED}${BOLD}  INSTALASI DIHENTIKAN — PREFLIGHT GAGAL${NC}"
+            echo -e "${RED}${BOLD}════════════════════════════════════════════════════════════${NC}"
+            echo -e "${YELLOW}"
+            echo -e "  Ditemukan CRITICAL ERROR yang harus diperbaiki dulu."
+            echo -e "  Installer tidak akan mengubah sistem Anda."
+            echo -e ""
+            echo -e "  Periksa output preflight di atas dan ikuti solusinya."
+            echo -e ""
+            echo -e "  Setelah diperbaiki, jalankan ulang:"
+            echo -e "  ${WHITE}  bash setupku.sh ${PREFLIGHT_DOMAIN:+--domain ${PREFLIGHT_DOMAIN}}${NC}"
+            echo -e "${RED}${BOLD}════════════════════════════════════════════════════════════${NC}"
+            echo -e "${NC}"
+            log "STOP: Preflight gagal dengan exit=1"
+            exit 1
+            ;;
+        *)
+            echo -e "${WARN} Preflight exit code tidak dikenal: ${PREFLIGHT_EXIT} — melanjutkan..."
+            log "Preflight: UNKNOWN exit=${PREFLIGHT_EXIT}"
+            ;;
+    esac
+    echo ""
+}
+
 # ── Main ──────────────────────────────────────────────────────────
 main() {
+    parse_args "$@"
     rm -f "$LOG_FILE"
     log "=== Mulai Instalasi ==="
 
     banner
+    run_preflight
     check_root
     check_os
     check_internet
@@ -503,4 +634,4 @@ main() {
     show_summary
 }
 
-main
+main "$@"

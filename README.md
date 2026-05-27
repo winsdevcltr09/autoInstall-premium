@@ -1,196 +1,410 @@
-<div align="center">
+# autoInstall-premium — DevCulture XII Store VPN Premium
 
-<img src="https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/assets/banner.png" alt="DevCulture XII Store" width="100%" />
-
-<br/>
-
-<img src="https://readme-typing-svg.demolab.com?font=Share+Tech+Mono&size=24&duration=2800&pause=1000&color=9B59B6&center=true&vCenter=true&width=680&height=55&lines=DevCulture+XII+Store+%E2%80%94+VPN+Premium;SSH+%7C+VMess+%7C+VLESS+%7C+Trojan+%7C+Shadowsocks;Auto+Install+%7C+Multi+Protocol+%7C+Full+Managed" alt="Typing" />
-
-<img src="https://readme-typing-svg.demolab.com?font=Share+Tech+Mono&size=12&duration=3500&pause=900&color=6C3483&center=true&vCenter=true&width=580&lines=Initializing+encrypted+tunnel...;Loading+protocol+modules...;All+systems+operational.+Welcome%2C+Operator." alt="Subtitle" />
-
-<br/>
-
-![Stars](https://img.shields.io/github/stars/winsdevcltr09/autoInstall-premium?style=for-the-badge&logo=github&color=9B59B6&labelColor=0D0D0D&logoColor=white)
-![Forks](https://img.shields.io/github/forks/winsdevcltr09/autoInstall-premium?style=for-the-badge&logo=github&color=7D3C98&labelColor=0D0D0D&logoColor=white)
-![Last Commit](https://img.shields.io/github/last-commit/winsdevcltr09/autoInstall-premium?style=for-the-badge&logo=git&color=6C3483&labelColor=0D0D0D&logoColor=white)
-![Repo Size](https://img.shields.io/github/repo-size/winsdevcltr09/autoInstall-premium?style=for-the-badge&logo=files&color=8E44AD&labelColor=0D0D0D&logoColor=white)
-
-![Version](https://img.shields.io/badge/VERSION-3.0.0_LTS-9B59B6?style=flat-square&logo=github&logoColor=white&labelColor=0D0D0D)
-![Ubuntu](https://img.shields.io/badge/Ubuntu-20.04_%7C_22.04_%7C_24.04-7D3C98?style=flat-square&logo=ubuntu&logoColor=white&labelColor=0D0D0D)
-![Debian](https://img.shields.io/badge/Debian-10_%7C_11_%7C_12-6C3483?style=flat-square&logo=debian&logoColor=white&labelColor=0D0D0D)
-![Shell](https://img.shields.io/badge/Shell-Bash-8E44AD?style=flat-square&logo=gnubash&logoColor=white&labelColor=0D0D0D)
-![Arch](https://img.shields.io/badge/Arch-x86__64-9B59B6?style=flat-square&logo=linux&logoColor=white&labelColor=0D0D0D)
-<img src="https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/assets/online.svg" width="14" height="14" /> <img src="https://img.shields.io/badge/Status-ONLINE-27AE60?style=flat-square&labelColor=0D0D0D" />
-
-</div>
-
-<br/>
+Script installer otomatis untuk VPN server berbasis Xray, SSH Websocket, SlowDNS, BadVPN, OpenVPN, dan Shadowsocks. Dirancang untuk Ubuntu dan Debian VPS — production-ready dengan pre-flight validation bawaan.
 
 ---
 
-## Daftar Isi
+## Requirements
 
-- [Persiapan Server](#-persiapan-server)
-- [Instalasi](#-instalasi)
-- [Protokol](#-protokol-yang-tersedia)
-- [Fitur Manajemen](#-fitur-manajemen)
-- [Sistem yang Didukung](#-sistem-yang-didukung)
-- [Panduan Lengkap](#-panduan-instalasi-lengkap)
-- [Kontak](#-kontak--support)
+| Komponen | Minimum |
+|---|---|
+| RAM | 512 MB (disarankan 1 GB) |
+| Disk | 2 GB free space |
+| Koneksi | Stabil, akses ke GitHub |
+| Akses | Root / sudo |
+
+### Tool yang diperlukan (auto-install jika belum ada)
+`curl` `wget` `python3` `openssl` `unzip` `jq` `cron` `socat` `iptables` `systemd`
 
 ---
 
-## Persiapan Server
+## Supported OS
 
-> Wajib dijalankan sebelum instalasi. Memperbarui seluruh paket sistem dan melakukan reboot.
+| OS | Versi | Status |
+|---|---|---|
+| Ubuntu | 20.04 LTS (Focal) | ✅ Direkomendasikan |
+| Ubuntu | 22.04 LTS (Jammy) | ✅ Didukung penuh |
+| Ubuntu | 24.04 LTS (Noble) | ✅ Didukung penuh |
+| Debian | 11 (Bullseye) | ✅ Didukung penuh |
+| Debian | 12 (Bookworm) | ✅ Didukung penuh |
+| Ubuntu | 18.04 | ⚠️ EOL — tidak direkomendasikan |
+| Debian | 10 | ⚠️ EOL — tidak direkomendasikan |
 
-```bash
-apt-get update && apt-get upgrade -y && apt dist-upgrade -y && update-grub && reboot
+> **Arsitektur:** x86_64 (amd64). ARM64 diuji terbatas.
+
+---
+
+## Domain & Cloudflare Setup
+
+Sebelum install, domain harus sudah **pointing ke IP VPS**.
+
+### Langkah setup domain
+
+1. **Beli/siapkan domain** (Cloudflare, Namecheap, dll.)
+2. **Set A Record:**
+   - Name: `vpn.namadomain.com` (atau `@` untuk root)
+   - Value: `IP_VPS_ANDA`
+   - TTL: Auto
+3. **Jika pakai Cloudflare:**
+   - Mode DNS: **DNS Only** (abu-abu) — disarankan untuk install pertama
+   - Atau **Proxied** (orange) — didukung tapi perlu setting SSL mode `Full`
+4. **Tunggu propagasi DNS:** 5–60 menit
+5. **Verifikasi:** `nslookup vpn.namadomain.com` harus mengembalikan IP VPS
+
+### Cloudflare SSL Mode
+Jika menggunakan Cloudflare proxy (orange cloud):
+- SSL/TLS → **Full** atau **Full (Strict)**
+- Port 80 dan 443 harus bisa diakses dari Cloudflare
+
+---
+
+## Preflight Validation
+
+`preflight.sh` adalah validator fail-fast yang otomatis berjalan sebelum installer dimulai.
+
+### Apa yang dicek preflight
+
+| Seksi | Check |
+|---|---|
+| Root | EUID=0 |
+| OS | Ubuntu/Debian versi yang didukung |
+| Arsitektur | x86_64 / aarch64 |
+| Virtualisasi | KVM, Xen, OpenVZ, LXC |
+| RAM | Minimum 256 MB |
+| Disk | Minimum 1 GB free |
+| Internet | Ping + DNS resolve |
+| Port conflicts | 20+ port dicek (80, 443, 22, 109, dll.) |
+| Dependensi | python3, curl, wget, jq, openssl, dll. |
+| apt health | Lock, repository, error |
+| Firewall | iptables, UFW, nftables |
+| NTP | Time sync — auto-fix jika tidak sinkron |
+| Domain & DNS | A record, IP matching, Cloudflare detection |
+| Existing install | Deteksi reinstall, warning backup |
+| Permission | Executable, /usr/local/bin, systemd |
+| Folder | Auto-create direktori yang diperlukan |
+| Binary | Library OpenSSL, Python3 modules |
+| Download endpoints | GitHub, acme.sh, IP API |
+| Service conflicts | nginx, xray, openvpn |
+| IP forwarding | Auto-aktifkan jika belum |
+| Cron | Auto-aktifkan jika belum |
+
+### Exit codes preflight
+| Code | Arti |
+|---|---|
+| `0` | Semua OK — install bisa dilanjutkan |
+| `1` | CRITICAL ERROR — install dihentikan |
+| `2` | Warning saja — install bisa dilanjutkan |
+| `99` | Internal error tak terduga |
+
+---
+
+## Installer Flow
+
 ```
-
-> [!WARNING]
-> Server akan **reboot** setelah perintah ini. Tunggu hingga server kembali online sebelum melanjutkan instalasi.
-
----
-
-## Instalasi
-
-> Setelah server kembali online, jalankan perintah berikut sebagai **root**:
-
-```bash
-bash <(curl -Ls https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/setupku.sh)
-```
-
-<details>
-<summary><b>Penjelasan detail perintah instalasi</b></summary>
-
-<br/>
-
-| Perintah | Fungsi |
-|:---|:---|
-| `curl -Ls <url>` | Mengunduh isi file `setupku.sh` dari GitHub secara diam-diam |
-| `bash <(...)` | Menjalankan isi script langsung tanpa menyimpan ke file |
-
-> Script akan otomatis **mendeteksi OS**, menginstal semua dependensi, dan mengkonfigurasi protokol VPN sesuai pilihan kamu.
-
-</details>
-
----
-
-## Protokol yang Tersedia
-
-<div align="center">
-
-| # | Protokol | Mode | Port | Enkripsi |
-|:---:|:---|:---:|:---:|:---:|
-| 01 | SSH WebSocket | TLS | 443 | SSL/TLS |
-| 02 | SSH WebSocket | Non-TLS | 80 | Plain |
-| 03 | SSH Slow DNS | Multipath | DNS | Tunnel |
-| 04 | SSH UDP | Multipath | Custom | Tunnel |
-| 05 | Xray VMess WebSocket | TLS / Non-TLS | 443 / 80 | AES-128-GCM |
-| 06 | Xray VLESS WebSocket | TLS / Non-TLS | 443 / 80 | XTLS / None |
-| 07 | Xray Trojan WebSocket | TLS / Non-TLS | 443 / 80 | TLS |
-| 08 | Xray Trojan TCP | XTLS | 443 | XTLS |
-| 09 | Xray Trojan TCP | TLS | 443 | TLS |
-| 10 | Shadowsocks | WS / gRPC | 443 / 80 | ChaCha20-Poly1305 |
-
-</div>
-
----
-
-## Fitur Manajemen
-
-<div align="center">
-
-| Kategori | Fitur |
-|:---:|:---|
-| **Akun** | Tambah, hapus, perpanjang masa aktif akun semua protokol |
-| **Monitoring** | Cek status akun, expired date, dan penggunaan bandwidth per user |
-| **Jaringan** | Monitor trafik real-time, limit kecepatan per user |
-| **Sistem** | Restart layanan, clear log, jadwal auto reboot, monitor RAM & CPU |
-| **Keamanan** | Generate sertifikat SSL otomatis via `genssl.sh` |
-| **Backup** | Backup dan restore konfigurasi via GitHub (`menu-bckp-github.sh`) |
-| **Panel** | Akses Webmin panel berbasis web (`webmin.sh`) |
-
-</div>
-
----
-
-## Sistem yang Didukung
-
-<div align="center">
-
-| Sistem Operasi | Versi | Keterangan |
-|:---:|:---:|:---|
-| **Ubuntu** | 20.04 LTS | Direkomendasikan — paling stabil |
-| **Ubuntu** | 22.04 LTS | Didukung penuh |
-| **Ubuntu** | 24.04 LTS | Didukung penuh |
-| **Ubuntu** | 18.04 LTS | Dukungan terbatas |
-| **Debian** | 10 / 11 / 12 | Didukung penuh |
-
-> [!NOTE]
-> Hanya mendukung arsitektur **x86_64**. VPS berbasis **OpenVZ** tidak didukung. Gunakan KVM atau LXC.
-
-</div>
-
----
-
-## Install Fix Clean all Bug Anti Error
-
-### 1 — Perbarui dan Siapkan Server
-
-Login sebagai **root**, lalu jalankan:
-
-```bash
-apt-get update && apt-get upgrade -y && apt dist-upgrade -y && update-grub && reboot
-```
-
-### 2 — Jalankan Setelah Install stupku.sh
-
-Setelah server kembali online:
-
-```bash
-bash <(curl -s https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/fix-all.sh)
-```
-
-### 3 — Ikuti Panduan di Layar
-
-Installer akan meminta:
-
-- **Domain / subdomain** — untuk sertifikat SSL otomatis
-- **Protokol** — pilih protokol yang ingin diaktifkan
-- **Port** — sesuaikan dengan kebutuhan
-
-### 4 — Akses Menu Utama
-
-Setelah instalasi selesai, ketik:
-
-```bash
-menu
+bash setupku.sh [--skip-preflight] [--domain yourdomain.com]
+        │
+        ▼
+┌──────────────────────────┐
+│     PARSE ARGUMENTS      │
+│  (--skip-preflight, dll) │
+└─────────────┬────────────┘
+              │
+              ▼
+┌──────────────────────────┐     SKIP_PREFLIGHT=true
+│      RUN PREFLIGHT       │────────────────────────►
+│      preflight.sh        │                        │
+│  - 18 seksi validation   │                        │
+│  - domain/CF check       │                        │
+└─────────────┬────────────┘                        │
+              │                                     │
+       CRITICAL?                              ┌─────▼──────────────┐
+          │                                   │  ⚠️  WARNING BESAR  │
+         YES──────► STOP INSTALL              │  (tidak rekomendasi)│
+          │                                   └─────┬──────────────┘
+         NO                                         │
+          │                                         │
+          ▼                                         ▼
+┌──────────────────────────────────────────────────────────┐
+│                    INSTALLER UTAMA                        │
+│  banner → check_root → check_os → check_internet         │
+│  → check_izin → input_domain → install_deps              │
+│  → system_config → install_services → install_menus      │
+│  → setup_cron → setup_profile → show_summary             │
+└──────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Kontak & Support
+## Installation
 
-<div align="center">
+### Cara install (production — recommended)
 
-<br/>
+```bash
+# Download dan jalankan installer
+bash <(curl -s https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/setupku.sh)
+```
 
-[![Telegram](https://img.shields.io/badge/Telegram-@dcxii-9B59B6?style=for-the-badge&logo=telegram&logoColor=white&labelColor=0D0D0D)](https://t.me/dcxii09)
+### Dengan domain langsung (validasi Cloudflare otomatis)
 
-<br/><br/>
+```bash
+bash <(curl -s https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/setupku.sh) --domain vpn.namadomain.com
+```
 
-<img src="https://readme-typing-svg.demolab.com?font=Share+Tech+Mono&size=12&duration=4000&pause=1000&color=5B2C6F&center=true&vCenter=true&width=560&lines=Script+by+DevCulture+XII+Store;Dilarang+mendistribusikan+ulang+tanpa+izin.;Copyright+2024+DevCulture+XII+Store.+All+rights+reserved." alt="Footer" />
+### Install manual (download dulu)
 
-<br/>
+```bash
+# Download
+wget https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/setupku.sh
 
-<sub>
-<img src="https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/assets/online.svg" width="10" height="10" /> <code>SYSTEM ONLINE</code>
-&nbsp;&nbsp;
-<img src="https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/assets/online.svg" width="10" height="10" /> <code>ALL PROTOCOLS ACTIVE</code>
-&nbsp;&nbsp;
-<img src="https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/assets/online.svg" width="10" height="10" /> <code>ENCRYPTION ENABLED</code>
-</sub>
+# Jalankan
+chmod +x setupku.sh
+bash setupku.sh --domain vpn.namadomain.com
+```
 
-</div>
+> **Catatan:** Script akan otomatis menjalankan `preflight.sh` terlebih dahulu. Jika ada critical error, install akan dihentikan sebelum ada perubahan ke sistem.
+
+---
+
+## Skip Preflight Mode
+
+```bash
+bash setupku.sh --skip-preflight
+```
+
+atau via download langsung:
+
+```bash
+bash <(curl -s https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/setupku.sh) --skip-preflight
+```
+
+**⚠️ WARNING BESAR:**
+
+```
+════════════════════════════════════════════════════════════
+⚠  PREFLIGHT VALIDATION DILEWATI
+════════════════════════════════════════════════════════════
+Mode ini TIDAK DIREKOMENDASIKAN untuk production VPS.
+
+Risiko:
+• Installer bisa gagal di tengah jalan
+• System config bisa korup jika dependency kurang
+• Domain belum pointing bisa menyebabkan SSL gagal
+• Port conflict bisa bikin service tidak bisa start
+
+Gunakan --skip-preflight HANYA jika:
+✓ Anda sudah yakin environment VPS bersih
+✓ Debug/test ulang setelah preflight sudah dijalankan manual
+✓ Anda memahami konsekuensinya
+
+Untuk jalankan preflight manual:
+  bash preflight.sh --domain yourdomain.com
+════════════════════════════════════════════════════════════
+```
+
+### Kapan aman pakai `--skip-preflight`
+
+- Debugging/testing di lingkungan yang sudah diketahui bersih
+- Rerun install setelah preflight sudah dijalankan manual dan lulus
+- CI/CD environment terkontrol
+
+### Kapan TIDAK boleh pakai `--skip-preflight`
+
+- Install pertama di VPS baru
+- VPS production yang belum pernah dicek
+- Saat ada perubahan domain/DNS
+
+---
+
+## Menjalankan Preflight Manual
+
+```bash
+# Download preflight saja
+wget https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/preflight.sh
+chmod +x preflight.sh
+
+# Jalankan dengan validasi domain
+bash preflight.sh --domain vpn.namadomain.com
+
+# Skip validasi Cloudflare (jika tidak pakai CF)
+bash preflight.sh --domain vpn.namadomain.com --skip-cf
+
+# Skip semua DNS check
+bash preflight.sh --skip-dns
+
+# Lihat log lengkap
+cat /tmp/preflight-*.log
+```
+
+---
+
+## Troubleshooting
+
+### Domain tidak mengarah ke VPS
+
+```
+[FAIL] Domain tidak mengarah ke VPS ini.
+       Detected VPS IP  : 1.2.3.4
+       Resolved Domain IP: 5.6.7.8
+```
+
+**Solusi:**
+1. Login ke panel DNS domain Anda
+2. Edit/tambah A record: `vpn.namadomain.com` → `1.2.3.4`
+3. Jika pakai Cloudflare: pastikan mode DNS Only (abu-abu) dulu
+4. Tunggu propagasi 5–60 menit
+5. Jalankan ulang: `bash preflight.sh --domain vpn.namadomain.com`
+
+### Port sudah dipakai
+
+```
+[FAIL] Port 80 (HTTP/Nginx) sudah dipakai!
+```
+
+**Solusi:**
+```bash
+# Cek proses yang memakai port 80
+ss -tlnp | grep ":80 "
+lsof -i :80
+
+# Stop service yang konflik (contoh apache2)
+systemctl stop apache2
+systemctl disable apache2
+```
+
+### apt lock error
+
+```
+[WARN] apt update error: E: Could not get lock
+```
+
+**Solusi:**
+```bash
+# Paksa unlock (hati-hati jika ada proses update berjalan)
+rm -f /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock
+dpkg --configure -a
+apt-get update
+```
+
+### Python3 tidak ditemukan
+
+```
+[FAIL] python3 tidak ditemukan
+```
+
+**Solusi:**
+```bash
+apt-get update && apt-get install -y python3
+```
+
+### NTP tidak sinkron
+
+```
+[WARN] NTP tidak tersinkron
+```
+
+**Solusi:**
+```bash
+timedatectl set-ntp true
+systemctl restart systemd-timesyncd
+timedatectl status
+```
+
+### TUN/TAP tidak tersedia (OpenVZ)
+
+Hubungi provider VPS untuk mengaktifkan TUN/TAP di panel kontrol VPS.
+
+---
+
+## FAQ
+
+**Q: Apakah bisa install tanpa domain?**
+A: Bisa, sistem akan menggunakan IP VPS sebagai fallback. Tapi fitur TLS (VMess/Vless/Trojan TLS) tidak akan berfungsi optimal tanpa SSL cert dari domain.
+
+**Q: Apakah aman dijalankan berkali-kali (reinstall)?**
+A: Preflight akan mendeteksi install sebelumnya dan menampilkan warning. Reinstall akan OVERWRITE konfigurasi dan akun VPN yang sudah ada. Backup dulu sebelum reinstall.
+
+**Q: Cloudflare orange cloud (proxy) bisa dipakai?**
+A: Bisa, tapi SSL mode harus diset ke "Full" atau "Full (Strict)" di Cloudflare dashboard. Preflight akan mendeteksi orange cloud dan menampilkan panduan.
+
+**Q: Arsitektur ARM (VPS cloud provider seperti Ampere) didukung?**
+A: Terbatas. Beberapa binary (BadVPN, Xray versi lama) tersedia untuk aarch64, tapi tidak semua diuji penuh.
+
+**Q: Berapa lama proses install?**
+A: Biasanya 10–25 menit tergantung kecepatan internet VPS dan paket yang didownload.
+
+**Q: Apa yang dilakukan auto-fix di preflight?**
+A: Autofix hanya untuk hal yang aman: aktifkan IP forwarding, aktifkan cron, buat direktori yang belum ada, install tool non-kritis yang hilang (jq, unzip, dll.), chmod +x script.
+
+---
+
+## Reinstall
+
+Jika ingin install ulang dari awal:
+
+```bash
+# Backup konfigurasi penting
+tar -czf /root/backup-vpn-$(date +%Y%m%d).tar.gz \
+    /etc/xray /etc/nginx /etc/openvpn /root/akun 2>/dev/null
+
+# Lihat backup
+ls -lh /root/backup-vpn-*.tar.gz
+
+# Jalankan installer ulang
+bash <(curl -s https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/setupku.sh) \
+     --domain vpn.namadomain.com
+```
+
+> Preflight akan mendeteksi existing install dan menampilkan warning sebelum overwrite.
+
+---
+
+## Updating
+
+```bash
+# Update script dan binary
+updatsc
+
+# Atau download ulang installer
+bash <(curl -s https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premium/main/setupku.sh)
+```
+
+---
+
+## Services & Ports
+
+| Service | Port |
+|---|---|
+| OpenSSH | 22, 53, 2222, 2269 |
+| SSH Websocket | 80, 8880, 8080 |
+| SSH SSL Websocket | 443 |
+| Stunnel5 | 222, 777 |
+| Dropbear | 109, 143 |
+| BadVPN UDP GW | 7100–7300 |
+| Nginx | 80, 81, 443 |
+| Xray VMess TLS | 443 |
+| Xray VMess Non-TLS | 80 |
+| Xray Vless TLS | 443 |
+| Xray Trojan WS/gRPC | 443 |
+| Shadowsocks WS/gRPC | 443 |
+| SlowDNS | 53, 5300 |
+
+---
+
+## Security Notes
+
+- Jangan pernah hardcode API key atau credential di script
+- `cf.sh` (Cloudflare DNS updater) meminta CF credentials saat runtime — tidak disimpan di kode
+- Token/password VPN disimpan di `/root/akun/` — pastikan permission 700
+- Auto-expire akun berjalan tiap 01:00 WIB via cron
+- Fail2ban aktif secara default untuk proteksi brute force SSH
+
+---
+
+## Support
+
+- Telegram: [t.me/dcxii](https://t.me/dcxii)
+- GitHub: [github.com/winsdevcltr09/autoInstall-premium](https://github.com/winsdevcltr09/autoInstall-premium)
+
+---
+
+*DevCulture XII Store VPN Premium v3.0.0 LTS*
