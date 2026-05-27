@@ -2,7 +2,6 @@
 # ================================================================
 #   CF Auto Subdomain — DevCulture XII Store VPN Premium
 #   Fitur  : Auto create/update DNS A Record di Cloudflare
-#   Domain : florezha.eu.org
 #   GitHub : github.com/winsdevcltr09/autoInstall-premium
 # ================================================================
 
@@ -31,14 +30,19 @@ WARN="[${YELLOW} WARN ${NC}]"
 #   CF_TOKEN="cfut_xxxxxxxxxxxx"
 CF_CONF="/etc/xray/cf.conf"
 
-# Default config (dapat di-override oleh cf.conf)
-CF_DOMAIN="florezha.eu.org"
+# ── Baca domain owner dari domain.conf jika tersedia ─────────────
+DOMAIN_CONF="/etc/xray/domain.conf"
+if [[ -f "$DOMAIN_CONF" ]]; then
+    source "$DOMAIN_CONF" 2>/dev/null || true
+fi
+
+# Default: domain owner dari installer
+CF_DOMAIN="${DOMAIN_OWNER:-florezha.eu.org}"
 CF_EMAIL=""
 CF_TOKEN=""
 
 # Load config jika sudah ada
 if [[ -f "$CF_CONF" ]]; then
-    # shellcheck source=/dev/null
     source "$CF_CONF"
 fi
 
@@ -117,26 +121,14 @@ check_deps() {
 validate_subdomain() {
     local sub="${1,,}"
 
-    local blacklist=("sg" "hk" "id" "us" "uk" "jp" "vn" "de" "fr" "in" "my" "th")
-    for b in "${blacklist[@]}"; do
-        if [[ "$sub" == "$b" ]]; then
-            echo -e "${ERR} Subdomain '${sub}' tidak diizinkan. Gunakan nama yang lebih unik." >&2
-            exit 1
-        fi
-    done
-
-    if [[ ${#sub} -lt 4 ]]; then
-        echo -e "${ERR} Subdomain terlalu pendek. Minimal 4 karakter (misal: vpn01, resa11)." >&2
+    if [[ ${#sub} -lt 2 ]]; then
+        echo -e "${ERR} Subdomain terlalu pendek. Minimal 2 karakter (misal: sg1, resa11)." >&2
         exit 1
     fi
 
-    if ! [[ "$sub" =~ ^[a-z0-9-]+$ ]]; then
+    if ! [[ "$sub" =~ ^[a-z0-9][a-z0-9-]*[a-z0-9]$|^[a-z0-9]$ ]]; then
         echo -e "${ERR} Subdomain hanya boleh berisi huruf kecil (a-z), angka (0-9), dan dash (-)." >&2
-        exit 1
-    fi
-
-    if [[ "$sub" == -* || "$sub" == *- ]]; then
-        echo -e "${ERR} Subdomain tidak boleh diawali atau diakhiri dengan tanda dash (-)." >&2
+        echo -e "${ERR} Tidak boleh diawali atau diakhiri dengan tanda dash (-)." >&2
         exit 1
     fi
 
@@ -204,10 +196,9 @@ echo -e ""
 
 # ── Input subdomain ───────────────────────────────────────────────
 echo -e "${YELLOW}  Panduan input subdomain:${NC}"
-echo -e "  • Minimal 4 karakter"
+echo -e "  • Minimal 2 karakter"
 echo -e "  • Hanya huruf kecil (a-z), angka (0-9), dan dash (-)"
-echo -e "  • Contoh: ${GREEN}resa11${NC} | ${GREEN}server01${NC} | ${GREEN}vpn-sg01${NC}"
-echo -e "  • Hindari nama singkat: sg, hk, id, us (ditolak)"
+echo -e "  • Contoh: ${GREEN}sg1${NC} | ${GREEN}server01${NC} | ${GREEN}vpn-sg01${NC}"
 echo -e ""
 echo -e "  Format: ${CYAN}<subdomain>${NC}.${CF_DOMAIN}"
 echo -e ""
@@ -282,6 +273,12 @@ echo "$SUB_DOMAIN" > /etc/xray/scdomain
 echo "$SUB_DOMAIN" > /etc/v2ray/domain
 echo "$SUB_DOMAIN" > /etc/v2ray/scdomain
 echo "IP=$SUB_DOMAIN" > /var/lib/scrz-prem/ipvps.conf
+
+# Update domain.conf jika ada
+if [[ -f /etc/xray/domain.conf ]]; then
+    sed -i "s|^FULL_DOMAIN=.*|FULL_DOMAIN=\"${SUB_DOMAIN}\"|" /etc/xray/domain.conf
+    sed -i "s|^SUBDOMAIN=.*|SUBDOMAIN=\"${SUB}\"|" /etc/xray/domain.conf
+fi
 
 echo -e "${OK} Domain disimpan ke semua path konfigurasi"
 
