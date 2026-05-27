@@ -3,7 +3,6 @@
 #   cf.sh — Cloudflare Dynamic DNS Updater
 #   DevCulture XII Store VPN Premium
 #   Fungsi : Update DNS record ke IP VPS saat ini (otomatis)
-#   Domain : florezha.eu.org
 #   Ref    : github.com/winsdevcltr09/autoInstall-premium
 # ================================================================
 #
@@ -30,15 +29,19 @@ INFO="[${CYAN} INFO ${NC}]"
 WARN="[${YELLOW} WARN ${NC}]"
 
 # ── Centralized Config ────────────────────────────────────────────
-# Kredensial dibaca dari /etc/xray/cf.conf
-# Gunakan cf-subdomain untuk setup config pertama kali
 CF_CONF="/etc/xray/cf.conf"
-CF_DOMAIN="florezha.eu.org"
+
+# ── Baca domain owner dari domain.conf jika tersedia ─────────────
+DOMAIN_CONF="/etc/xray/domain.conf"
+if [[ -f "$DOMAIN_CONF" ]]; then
+    source "$DOMAIN_CONF" 2>/dev/null || true
+fi
+
+CF_DOMAIN="${DOMAIN_OWNER:-florezha.eu.org}"
 CF_EMAIL=""
 CF_TOKEN=""
 
 if [[ -f "$CF_CONF" ]]; then
-    # shellcheck source=/dev/null
     source "$CF_CONF"
 fi
 
@@ -81,7 +84,7 @@ else
     echo -e "${WARN} Tidak ada domain aktif di /root/domain."
     echo -e "${INFO} Gunakan ${CYAN}cf-subdomain${NC} untuk membuat subdomain baru."
     echo -e ""
-    read -rp "  Input subdomain (contoh: resa11): " INPUT_SUB
+    read -rp "  Input subdomain (contoh: sg1): " INPUT_SUB
     if [[ -z "${INPUT_SUB:-}" ]]; then
         echo -e "${ERR} Input kosong. Dibatalkan."
         exit 1
@@ -113,7 +116,7 @@ if [[ -z "$ZONE_ID" || "$ZONE_ID" == "null" ]]; then
 fi
 echo -e "${OK} Zone ID ditemukan"
 
-# ── Get/Create Record ─────────────────────────────────────────────
+# ── Get/Create/Update Record ──────────────────────────────────────
 RECORD_RESP=$(curl -sf --max-time 20 -X GET \
     "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records?type=A&name=${TARGET_DOMAIN}" \
     -H "Authorization: Bearer ${CF_TOKEN}" \
@@ -129,7 +132,6 @@ if [[ -z "$RECORD_ID" || "$RECORD_ID" == "null" ]]; then
         -H "Content-Type: application/json" \
         -d "{\"type\":\"A\",\"name\":\"${TARGET_DOMAIN}\",\"content\":\"${VPS_IP}\",\"ttl\":120,\"proxied\":false}" > /dev/null
 else
-    # ── Update Record ─────────────────────────────────────────────
     curl -sf --max-time 20 -X PUT \
         "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records/${RECORD_ID}" \
         -H "Authorization: Bearer ${CF_TOKEN}" \
