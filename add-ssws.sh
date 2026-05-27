@@ -234,7 +234,7 @@ cat > /home/vps/public_html/sodosokws-$user.txt <<-END
         "security": "tls",
         "tlsSettings": {
           "allowInsecure": true,
-          "serverName": "isi_bug_disini"
+          "serverName": "$domain"
         },
         "wsSettings": {
           "headers": {
@@ -345,7 +345,7 @@ cat > /home/vps/public_html/sodosokgrpc-$user.txt <<-END
         "security": "tls",
         "tlsSettings": {
           "allowInsecure": true,
-          "serverName": "isi_bug_disini"
+          "serverName": "$domain"
         }
       },
       "tag": "proxy"

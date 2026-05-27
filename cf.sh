@@ -7,8 +7,11 @@ apt install jq curl -y
 sub=$(</dev/urandom tr -dc a-z | head -c4)
 DOMAIN=remoot.my.id
 SUB_DOMAIN=${sub}.remoot.my.id
-CF_ID=arismar.amar@gmail.com
-CF_KEY=f7fa85e2472592639b7d1cf82f1c5490ec1cd
+CF_ID="${CF_ID:-}"  # SECURITY: set via env: export CF_ID=your@email.com
+if [[ -z "$CF_ID" ]]; then echo "ERROR: CF_ID is not set. Export your Cloudflare account email first."; exit 1; fi
+CF_KEY="${CF_KEY:-}"  # SECURITY: set via env: export CF_KEY=your_api_key
+# REQUIRED: export CF_KEY before running, or pass inline: CF_KEY=xxx bash cf.sh
+if [[ -z "$CF_KEY" ]]; then echo "ERROR: CF_KEY is not set. Export your Cloudflare Global API Key first."; exit 1; fi
 set -euo pipefail
 IP=$(curl -sS ifconfig.me);
 echo "Updating DNS for ${SUB_DOMAIN}..."
