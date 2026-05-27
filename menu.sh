@@ -60,8 +60,8 @@ Exp=$(curl -sS https://raw.githubusercontent.com/winsdevcltr09/autoInstall-premi
 
 # // Root Checking
 if [ "${EUID}" -ne 0 ]; then
-		echo -e "${EROR} Please Run This Script As Root User !"
-		exit 1
+echo -e "${EROR} Please Run This Script As Root User !"
+exit 1
 fi
 
 # // Exporting IP Address
@@ -186,6 +186,7 @@ echo -e " ${BICyan}[${BIWhite}08${BICyan}]${RED} •${NC} ${CYAN}REBOOT         
 echo -e " ${BICyan}[${BIWhite}09${BICyan}]${RED} •${NC} ${CYAN}RESTART SERVICE $NC  ${BICyan}[${BIWhite}20${BICyan}]${RED} • ${NC}${CYAN}SCRIPT INFO $NC"
 echo -e " ${BICyan}[${BIWhite}10${BICyan}]${RED} •${NC} ${CYAN}BACKUP {OFF}    $NC  ${BICyan}[${BIWhite}21${BICyan}]${RED} • ${NC}${CYAN}CLEAR LOG $NC"
 echo -e " ${BICyan}[${BIWhite}11${BICyan}]${RED} •${NC} ${CYAN}ADD HOST        $NC  ${BICyan}[${BIWhite}22${BICyan}]${RED} • ${NC}${CYAN}FIX MISSING POINTING $NC"
+echo -e " ${BICyan}[${BIWhite}23${BICyan}]${RED} •${NC} ${CYAN}CF AUTO SUBDOMAIN${NC}  ${BICyan}─── ${YELLOW}Auto DNS florezha.eu.org${NC}"
 echo -e " ${BICyan}[${BIWhite} X ${BICyan}] TYPE X FOR EXIT ${BICyan}${BIYellow}${BICyan}${NC}"  
 echo -e " ${RED}"
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m${NC}"
@@ -218,14 +219,12 @@ case $opt in
 15) clear ; cek-trafik ;;
 16) clear ; cek-speed ;;
 17) clear ; cek-bandwidth ;;
-#18) clear ; cek-ram ;;
 18) clear ; limit-speed ;;
 19) clear ; wbm ;;
 20) clear ; cat /root/log-install.txt ;;
 21) clear ; clearlog ;;
-#99) clear ; update ;;
 22) clear ; fix ;;
-
+23) clear ; cf-subdomain ;;
 0) clear ; menu ;;
 x) exit ;;
 *) echo -e "" ; echo "Press any key to back exit" ; sleep 1 ; ./menu ;;
