@@ -94,6 +94,90 @@ bash setupku.sh --domain vpn.namadomain.com
 
 ---
 
+---
+
+## 🌐 Sistem Domain (Dual Mode)
+
+Script ini mendukung **dua mode konfigurasi domain** yang dipilih secara interaktif selama instalasi. Pilih mode yang sesuai dengan kebutuhan Anda:
+
+<div align="center">
+
+| Mode | Keterangan | Cocok Untuk |
+|:---:|:---|:---|
+| **Mode 1** — Domain Owner | Subdomain dari domain owner script (`florezha.eu.org`) | Reseller / pengguna yang membeli script |
+| **Mode 2** — Domain Pribadi | Domain milik Anda sendiri + subdomain bebas | Pemilik domain sendiri |
+
+</div>
+
+### Mode 1 — Domain Owner (Subdomain)
+
+Gunakan mode ini jika Anda **tidak punya domain sendiri**. Anda cukup memilih nama subdomain — domain utama sudah dikelola oleh owner script via Cloudflare.
+
+```
+Format  : <subdomain>.florezha.eu.org
+Contoh  : sg1.florezha.eu.org
+          id01.florezha.eu.org
+          vpn-sg01.florezha.eu.org
+```
+
+**Cara setup:**
+1. Jalankan installer → pilih **`[1] Domain Owner`**
+2. Masukkan nama subdomain (huruf kecil, angka, dash)
+3. Script otomatis mendaftarkan DNS via `cf-subdomain`
+4. SSL di-generate otomatis via `genssl`
+
+> **Aturan subdomain:** minimal 2 karakter, hanya huruf kecil (`a-z`), angka (`0-9`), dan dash (`-`). Tidak boleh diawali atau diakhiri dengan dash.
+
+### Mode 2 — Domain Pribadi
+
+Gunakan mode ini jika Anda **punya domain sendiri**. Domain harus sudah pointing ke IP VPS sebelum menjalankan installer.
+
+```
+Format  : <subdomain>.<domain_anda>
+Contoh  : sg1.myvpn.com
+          server01.vpn-ku.net
+          id01.example.co.id
+```
+
+**Cara setup:**
+1. Tambahkan **A Record** di panel DNS domain Anda:
+   ```
+   Nama  : sg1 (atau subdomain pilihan Anda)
+   Tipe  : A
+   Value : IP_VPS_ANDA
+   TTL   : 300 (atau auto)
+   ```
+2. Tunggu propagasi DNS (5–60 menit)
+3. Verifikasi: `nslookup sg1.namadomain.com` → pastikan mengarah ke IP VPS
+4. Jalankan installer → pilih **`[2] Domain Pribadi`**
+5. Masukkan domain Anda → masukkan subdomain
+
+### Konfigurasi Domain Tersimpan
+
+Setelah setup, domain aktif tersimpan di beberapa lokasi berikut (semua konsisten):
+
+| File | Format | Digunakan oleh |
+|:---|:---|:---|
+| `/etc/xray/domain` | `sg1.florezha.eu.org` | Xray, nginx-ssl, add-ws, add-vless, dll |
+| `/var/lib/scrz-prem/ipvps.conf` | `IP=sg1.florezha.eu.org` | genssl, add-ws, add-tr, add-ssws |
+| `/root/domain` | `sg1.florezha.eu.org` | addhost, backup |
+| `/etc/xray/domain.conf` | Structured config | referensi terstruktur |
+
+> **Ganti domain setelah install?** Jalankan perintah `addhost` dari menu, lalu jalankan `genssl` untuk memperbarui sertifikat SSL.
+
+### Cloudflare — Konfigurasi Subdomain Owner
+
+Jika menggunakan **Mode 1** (Domain Owner), setup DNS via Cloudflare dilakukan oleh script `cf-subdomain`. Kredensial Cloudflare disimpan di `/etc/xray/cf.conf` (dibuat otomatis, tidak tersimpan di kode).
+
+```bash
+# Buat subdomain baru (interaktif):
+cf-subdomain
+
+# Update DNS ke IP VPS terbaru (otomatis):
+fix
+```
+
+
 ## Update
 
 > Jalankan untuk memperbarui script ke versi terbaru:
