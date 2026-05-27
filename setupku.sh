@@ -1,7 +1,7 @@
 #!/bin/bash
 # ================================================================
 #   Script Installer - DevCulture XII Store VPN Premium
-#   Version : 3.0.0 LTS
+#   Version : 3.1.0 LTS
 #   GitHub  : github.com/winsdevcltr09/autoInstall-premium
 #   OS      : Ubuntu 18.04 / 20.04 / 22.04 / 24.04 LTS | Debian 10 / 11 / 12
 #   By      : DevCulture XII Store
@@ -30,6 +30,9 @@ ERRORS=0
 SKIP_PREFLIGHT=false
 PREFLIGHT_DOMAIN=""
 
+# ── Domain Owner (dapat diubah oleh owner script) ─────────────────
+DOMAIN_OWNER="florezha.eu.org"
+
 # ── Helper: log to file ───────────────────────────────────────────
 log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"; }
 
@@ -44,7 +47,7 @@ banner() {
     echo -e "     ${CYAN}  |____/ \\____/_/\\_\\___|_____| /_/\\_\\ |___|${NC}"
     echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "     ${WHITE}${BOLD}    DevCulture XII Store - Auto Installer VPN${NC}"
-    echo -e "     ${CYAN}    Version 3.0.0 LTS | Ubuntu & Debian${NC}"
+    echo -e "     ${CYAN}    Version 3.1.0 LTS | Ubuntu & Debian${NC}"
     echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
 }
@@ -111,7 +114,6 @@ check_os() {
             ;;
     esac
 
-    # Cek arsitektur
     ARCH=$(uname -m)
     if [[ "$ARCH" != "x86_64" ]]; then
         echo -e "${WARN} Arsitektur ${ARCH} belum diuji (direkomendasikan: x86_64)"
@@ -154,8 +156,6 @@ check_izin() {
         return 0
     fi
 
-    # Format file izin: username expiry-date IP limit
-    # Kolom: $1=username, $2=expiry-date, $3=IP, $4=limit
     local IZIN_LINE
     IZIN_LINE=$(echo "$IZIN_DATA" | grep -v "^#" | grep -v "^$" | awk -v ip="$MYIP" '$3 == ip {print; exit}')
 
@@ -171,7 +171,6 @@ check_izin() {
     EXP_DATE=$(echo "$IZIN_LINE" | awk '{print $2}')
     TODAY=$(date +%Y-%m-%d)
 
-    # Perbandingan tanggal: string ISO 8601 bisa dibandingkan langsung secara lexicographic
     if [[ "$TODAY" > "$EXP_DATE" ]]; then
         echo -e "${ERR} Lisensi untuk IP ${RED}${MYIP}${NC} sudah EXPIRED pada ${EXP_DATE}!"
         echo -e "     Perpanjang lisensi: ${CYAN}t.me/dcxii${NC}"
@@ -182,36 +181,146 @@ check_izin() {
     log "Izin: ${CLIENT_NAME} | Exp: ${EXP_DATE}"
 }
 
-# ── Input domain ──────────────────────────────────────────────────
+# ── Validasi format subdomain ─────────────────────────────────────
+validate_subdomain() {
+    local sub="${1,,}"
+    if [[ -z "$sub" ]]; then
+        echo -e "${WARN} Subdomain tidak boleh kosong." >&2
+        return 1
+    fi
+    if ! [[ "$sub" =~ ^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$|^[a-zA-Z0-9]$ ]]; then
+        echo -e "${WARN} Subdomain hanya boleh berisi huruf, angka, dan dash (-). Tidak boleh diawali/diakhiri dash." >&2
+        return 1
+    fi
+    if [[ ${#sub} -lt 2 ]]; then
+        echo -e "${WARN} Subdomain minimal 2 karakter (contoh: sg, id01, vpn-sg01)." >&2
+        return 1
+    fi
+    return 0
+}
+
+# ── Validasi format domain ────────────────────────────────────────
+validate_domain() {
+    local dom="${1,,}"
+    if [[ -z "$dom" ]]; then
+        echo -e "${WARN} Domain tidak boleh kosong." >&2
+        return 1
+    fi
+    if ! [[ "$dom" =~ ^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$ ]]; then
+        echo -e "${WARN} Format domain tidak valid. Contoh: myvpn.com, my-vpn.net" >&2
+        return 1
+    fi
+    return 0
+}
+
+# ── Input domain (dual-mode) ──────────────────────────────────────
 input_domain() {
     echo ""
     echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "     ${WHITE}${BOLD} Setup Domain${NC}"
     echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "${INFO} Domain digunakan untuk VMess/Vless/Trojan TLS"
-    echo -e "${WARN} Pastikan domain sudah pointing ke IP VPS: ${GREEN}${MYIP}${NC}"
-    echo ""
-    read -rp "  Input domain (contoh: vpn.example.com): " DOMAIN
+    echo -e ""
+    echo -e "     ${WHITE}${BOLD}[1]${NC} Domain Owner   ${CYAN}→ subdomain.${DOMAIN_OWNER}${NC}"
+    echo -e "     ${WHITE}${BOLD}[2]${NC} Domain Pribadi ${CYAN}→ subdomain.domain_anda.com${NC}"
     echo ""
 
-    if [[ -z "$DOMAIN" ]]; then
-        echo -e "${WARN} Domain kosong. Menggunakan IP VPS sebagai fallback: ${YELLOW}${MYIP}${NC}"
-        DOMAIN="$MYIP"
+    local MODE=""
+    while true; do
+        read -rp "  Pilih mode domain [1/2]: " MODE
+        if [[ "$MODE" == "1" || "$MODE" == "2" ]]; then
+            break
+        fi
+        echo -e "${WARN} Masukkan angka 1 atau 2."
+    done
+
+    local SUBDOMAIN=""
+    local USER_DOMAIN_BASE=""
+
+    if [[ "$MODE" == "1" ]]; then
+        # ── MODE 1: Domain Owner ──────────────────────────────────
+        echo ""
+        echo -e "${INFO} Domain Owner  : ${GREEN}${DOMAIN_OWNER}${NC}"
+        echo -e "${WARN} Pastikan subdomain sudah pointing ke IP VPS: ${GREEN}${MYIP}${NC}"
+        echo -e "${INFO} Contoh input  : ${CYAN}sg1${NC}  →  ${GREEN}sg1.${DOMAIN_OWNER}${NC}"
+        echo ""
+
+        while true; do
+            read -rp "  Masukkan subdomain: " SUBDOMAIN
+            SUBDOMAIN="${SUBDOMAIN,,}"
+            if validate_subdomain "$SUBDOMAIN"; then
+                break
+            fi
+            echo -e "  ${YELLOW}Coba lagi.${NC}"
+        done
+
+        USER_DOMAIN_BASE="$DOMAIN_OWNER"
+        DOMAIN="${SUBDOMAIN}.${DOMAIN_OWNER}"
+
+    else
+        # ── MODE 2: Domain Pribadi ────────────────────────────────
+        echo ""
+        echo -e "${WARN} Pastikan domain sudah pointing ke IP VPS: ${GREEN}${MYIP}${NC}"
+        echo -e "${INFO} Contoh domain : ${CYAN}myvpn.com${NC}"
+        echo ""
+
+        while true; do
+            read -rp "  Masukkan domain anda (contoh: myvpn.com): " USER_DOMAIN_BASE
+            USER_DOMAIN_BASE="${USER_DOMAIN_BASE,,}"
+            if validate_domain "$USER_DOMAIN_BASE"; then
+                break
+            fi
+            echo -e "  ${YELLOW}Coba lagi.${NC}"
+        done
+
+        echo ""
+        echo -e "${INFO} Contoh input  : ${CYAN}sg1${NC}  →  ${GREEN}sg1.${USER_DOMAIN_BASE}${NC}"
+        echo ""
+
+        while true; do
+            read -rp "  Masukkan subdomain: " SUBDOMAIN
+            SUBDOMAIN="${SUBDOMAIN,,}"
+            if validate_subdomain "$SUBDOMAIN"; then
+                break
+            fi
+            echo -e "  ${YELLOW}Coba lagi.${NC}"
+        done
+
+        DOMAIN="${SUBDOMAIN}.${USER_DOMAIN_BASE}"
     fi
 
-    # Simpan domain
-    mkdir -p /etc/xray /etc/v2ray
+    echo ""
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "  ${OK} Domain aktif  : ${GREEN}${DOMAIN}${NC}"
+    echo -e "  ${OK} Subdomain     : ${GREEN}${SUBDOMAIN}${NC}"
+    echo -e "  ${OK} Base domain   : ${GREEN}${USER_DOMAIN_BASE}${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+
+    # ── Simpan domain ke semua path yang dibutuhkan ───────────────
+    mkdir -p /etc/xray /etc/v2ray /var/lib/scrz-prem
     echo "$DOMAIN" > /etc/xray/domain
     echo "$DOMAIN" > /etc/v2ray/domain
     echo "$DOMAIN" > /etc/xray/scdomain
     echo "$DOMAIN" > /etc/v2ray/scdomain
     echo "$DOMAIN" > /root/domain
     echo "$DOMAIN" > /root/scdomain
-    mkdir -p /var/lib/scrz-prem
     echo "IP=$DOMAIN" > /var/lib/scrz-prem/ipvps.conf
 
+    # ── Simpan konfigurasi domain terstruktur (baru) ──────────────
+    cat > /etc/xray/domain.conf << EOF
+# Domain configuration — DevCulture XII Store
+# Generated: $(date '+%Y-%m-%d %H:%M:%S')
+DOMAIN_OWNER="${DOMAIN_OWNER}"
+DOMAIN_MODE="${MODE}"
+SUBDOMAIN="${SUBDOMAIN}"
+DOMAIN_BASE="${USER_DOMAIN_BASE}"
+FULL_DOMAIN="${DOMAIN}"
+EOF
+    chmod 644 /etc/xray/domain.conf
+
     echo -e "${OK} Domain disimpan: ${GREEN}${DOMAIN}${NC}"
-    log "Domain: ${DOMAIN}"
+    log "Domain: ${DOMAIN} | Mode: ${MODE} | Sub: ${SUBDOMAIN} | Base: ${USER_DOMAIN_BASE}"
 }
 
 # ── Install dependencies ─────────────────────────────────────────
@@ -227,12 +336,10 @@ install_deps() {
     apt-get upgrade -y -qq 2>/dev/null
     echo -e "${OK} Sistem diperbarui"
 
-    # Hapus paket konflik
     echo -e "${INFO} Menghapus paket konflik..."
     apt-get remove --purge -y ufw firewalld exim4 apache2 &>/dev/null
     echo -e "${OK} Paket konflik dihapus"
 
-    # Paket dasar
     echo -e "${INFO} Menginstall dependensi utama..."
     local PKGS=(
         curl wget git zip unzip jq socat cron
@@ -248,14 +355,12 @@ install_deps() {
         sed gawk grep
     )
 
-    # Python (berbeda per OS)
     if [[ "$OS_NAME" == "ubuntu" && ( "$OS_VERSION" == "22.04" || "$OS_VERSION" == "24.04" ) ]]; then
         PKGS+=(python3 python3-pip)
     else
         PKGS+=(python3 python3-pip)
         apt-get install -y python2 &>/dev/null || true
     fi
-    # iptables-legacy diperlukan di Ubuntu 24.04
     if [[ "$OS_NAME" == "ubuntu" && "$OS_VERSION" == "24.04" ]]; then
         apt-get install -y iptables-legacy &>/dev/null || true
         update-alternatives --set iptables /usr/sbin/iptables-legacy &>/dev/null || true
@@ -264,7 +369,6 @@ install_deps() {
     apt-get install -y "${PKGS[@]}" -qq 2>/dev/null
     echo -e "${OK} Dependensi utama terinstall"
 
-    # Node.js
     echo -e "${INFO} Menginstall Node.js..."
     if ! command -v node &>/dev/null; then
         if [[ "$OS_NAME" == "ubuntu" && "$OS_VERSION" == "24.04" ]]; then
@@ -286,11 +390,9 @@ system_config() {
     echo -e "     ${WHITE}${BOLD} [2/6] Konfigurasi Sistem${NC}"
     echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
-    # Timezone
     ln -sf /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
     echo -e "${OK} Timezone: Asia/Jakarta (GMT+7)"
 
-    # Disable IPv6
     cat >> /etc/sysctl.conf << 'EOF'
 net.ipv6.conf.all.disable_ipv6 = 1
 net.ipv6.conf.default.disable_ipv6 = 1
@@ -299,7 +401,6 @@ EOF
     sysctl -p &>/dev/null
     echo -e "${OK} IPv6 dinonaktifkan"
 
-    # Hostname fix
     local LOCALIP
     LOCALIP=$(hostname -I | awk '{print $1}')
     local HST
@@ -309,7 +410,6 @@ EOF
     fi
     echo -e "${OK} Hostname dikonfigurasi"
 
-    # Buat direktori yang diperlukan
     mkdir -p /root/akun/{vmess,vless,shadowsocks,trojan}
     mkdir -p /etc/xray /etc/v2ray /var/lib/scrz-prem
     mkdir -p /root/backup
@@ -371,10 +471,8 @@ install_menus() {
     echo -e "     ${WHITE}${BOLD} [6/6] Install Menu & Script Manajemen${NC}"
     echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
-    # Jalankan senmenu.sh untuk install semua menu sekaligus
     run_dl "Semua Script Menu" "senmenu.sh" "senmenu.sh"
 
-    # Pastikan update script ada
     wget -q --timeout=30 -O /usr/bin/updatsc "${GITHUB_RAW}/update.sh" 2>/dev/null && chmod +x /usr/bin/updatsc
     echo -e "${OK} Script update terpasang di /usr/bin/updatsc"
 }
@@ -382,7 +480,6 @@ install_menus() {
 # ── Setup cronjobs ───────────────────────────────────────────────
 setup_cron() {
     echo -e "${INFO} Mengatur cronjob..."
-    # Hapus entri lama jika ada
     sed -i '/root reboot\|root clog\|root pkill.*menu\|root xp\|root notramcpu/d' /etc/crontab 2>/dev/null
 
     cat >> /etc/crontab << 'CRONEOF'
@@ -415,7 +512,6 @@ PROFEOF
     chmod 644 /root/.profile
     echo -e "${OK} Auto-launch menu dikonfigurasi"
 
-    # Simpan info ISP
     curl -sf --max-time 10 https://ipapi.co/org > /root/.isp 2>/dev/null || true
 }
 
@@ -460,7 +556,7 @@ show_summary() {
         echo -e "     ${GREEN}✓ Instalasi berhasil tanpa error!${NC}"
     fi
     echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo -e "     ${WHITE}${BOLD}  DevCulture XII Store VPN Premium v3.0.0 LTS${NC}"
+    echo -e "     ${WHITE}${BOLD}  DevCulture XII Store VPN Premium v3.1.0 LTS${NC}"
     echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
     log "=== Instalasi selesai. Errors: ${ERRORS} ==="
@@ -502,7 +598,6 @@ parse_args() {
 # ── Run Preflight Validation ──────────────────────────────────────
 run_preflight() {
     if $SKIP_PREFLIGHT; then
-        # Tampilkan warning besar saat bypass
         echo ""
         echo -e "${RED}${BOLD}════════════════════════════════════════════════════════════${NC}"
         echo -e "${RED}${BOLD}⚠  PREFLIGHT VALIDATION DILEWATI${NC}"
@@ -538,7 +633,6 @@ run_preflight() {
     local PREFLIGHT_ARGS=(--called-by-setupku)
     [[ -n "$PREFLIGHT_DOMAIN" ]] && PREFLIGHT_ARGS+=(--domain "$PREFLIGHT_DOMAIN")
 
-    # Cari preflight.sh: lokal dulu, fallback download dari GitHub
     local SCRIPT_DIR
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd 2>/dev/null || echo /root)"
     if [[ -f "${SCRIPT_DIR}/preflight.sh" && -x "${SCRIPT_DIR}/preflight.sh" ]]; then
@@ -563,7 +657,6 @@ run_preflight() {
         fi
     fi
 
-    # Jalankan preflight
     bash "$PREFLIGHT_SCRIPT" "${PREFLIGHT_ARGS[@]}"
     local PREFLIGHT_EXIT=$?
 
@@ -623,10 +716,8 @@ main() {
     setup_cron
     setup_profile
 
-    # Versi
-    echo "3.0.0" > /root/versi
+    echo "3.1.0" > /root/versi
 
-    # Bersihkan file sementara
     cd /root
     rm -f setupku.sh ins-xray.sh senmenu.sh xraymode.sh slowdns.sh \
           nginx-ssl.sh ssh-vpn.sh insshws.sh update.sh 2>/dev/null
